@@ -736,16 +736,28 @@ fetchAllChampions();
         }
 
         function pickRandom(role) {
-            // Rellena de forma aleatoria los huecos que falten por rellenar en el rol indicado
-            for (let i = 0; i < 5; i++) {
-                const inner = document.getElementById(`${role}-inner-${i}`);
-                if (inner && inner.classList.contains('empty')) {
-                    const randomChamp = champions[Math.floor(Math.random() * champions.length)];
-                    selectChampionDirect(role, i, randomChamp);
-                }
-            }
-        }
+    // 1. Verificamos que los campeones ya se hayan cargado desde la API
+    if (champions.length === 0) return;
 
+    // 2. Hacemos una copia de la lista para ir descartando y no repetir campeones
+    let tempChamps = [...champions];
+
+    for (let i = 0; i < 5; i++) {
+        const inner = document.getElementById(`${role}-inner-${i}`);
+        
+        if (inner) {
+            // 3. Elegimos un índice aleatorio de la lista temporal
+            const randomIndex = Math.floor(Math.random() * tempChamps.length);
+            const randomChamp = tempChamps[randomIndex];
+            
+            // 4. Inyectamos el campeón, sin importar si el hueco estaba vacío o lleno
+            selectChampionDirect(role, i, randomChamp);
+            
+            // 5. Lo sacamos de la lista temporal para el siguiente ciclo
+            tempChamps.splice(randomIndex, 1);
+        }
+    }
+}
         // Función interna directa para el botón de Random
         function selectChampionDirect(role, slot, champ) {
             const innerElement = document.getElementById(`${role}-inner-${slot}`);
