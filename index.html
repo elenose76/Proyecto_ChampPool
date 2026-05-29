@@ -648,6 +648,47 @@ fetchAllChampions();
                 names.forEach(name => name.textContent = '');
             }
         }
+        document.addEventListener('DOMContentLoaded', () => {
+    const summonerSpan = document.querySelector('.summoner-name');
+    const profileLink = document.querySelector('.btn-link');
+
+    const updateProfileLink = () => {
+        // Obtenemos el texto ingresado
+        const summonerText = summonerSpan.textContent.trim();
+        
+        // Verificamos que el usuario haya escrito el formato correcto con el '#'
+        if (summonerText.includes('#')) {
+            // Separamos el nombre del tag
+            const [name, tag] = summonerText.split('#');
+            
+           
+            const cleanName = name.trim();
+            const cleanTag = tag.trim();
+
+         
+            const region = 'euw'; 
+            
+            
+          
+            const riotId = `${cleanName}-${cleanTag}`;
+         
+            const deepLolUrl = `https://www.deeplol.gg/summoner/${region}/${encodeURIComponent(riotId)}`;
+            
+           
+            profileLink.href = deepLolUrl;
+            
+        } else {
+            
+            profileLink.href = 'https://www.deeplol.gg/';
+        }
+    };
+
+    
+    summonerSpan.addEventListener('input', updateProfileLink);
+
+    
+    updateProfileLink();
+});
     </script>
 </body>
 </html>
