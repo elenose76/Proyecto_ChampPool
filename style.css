@@ -1,0 +1,553 @@
+:root {
+            --bg-dark: #060a10;
+            --card-bg: #09111c;
+            --gold-primary: #c89b3c;
+            --gold-dark: #785a28;
+            --text-light: #f0e6d2;
+            --text-dim: #a0a5b0;
+            --text-muted: #5b626c;
+            --border-color: #1e2834;
+            --panel-bg: #03080f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pool-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* --- TARJETA DE ROL PRINCIPAL --- */
+        .role-card {
+            background: var(--card-bg);
+            border: 1px solid #141f2f;
+            border-radius: 6px;
+            padding: 35px;
+            display: flex;
+            position: relative;
+            min-height: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+
+        /* Marca de agua de fondo texto gigante */
+        .bg-watermark {
+            position: absolute;
+            right: 250px;
+            top: -10px;
+            font-size: 9rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            letter-spacing: 5px;
+            pointer-events: none;
+            user-select: none;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+
+        /* Columna Izquierda: Info del Rol */
+        .role-info {
+            width: 32%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-right: 15px;
+            box-sizing: border-box;
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .role-badge {
+            border: 1px solid var(--gold-primary);
+            padding: 4px 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .role-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-random {
+            background: transparent;
+            border: 1px solid var(--gold-dark);
+            color: var(--gold-primary);
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+        }
+
+        .btn-random:hover {
+            background: var(--gold-primary);
+            color: var(--bg-dark);
+        }
+
+        .role-subtitle {
+            font-style: italic;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .role-description {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #1a222d;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Columna Central/Derecha: Los Hexágonos */
+        .role-selection {
+            width: 43%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            box-sizing: border-box;
+        }
+
+        .selection-title {
+            color: var(--gold-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .hex-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hex-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Marcos Hexagonales Clásicos */
+        .hex-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90px;
+        }
+
+        .hexagon-container {
+            position: relative;
+            width: 85px;
+            height: 95px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .hexagon-container:hover {
+            transform: scale(1.06);
+        }
+
+        .hexagon-container.active .hexagon {
+            background: var(--gold-primary);
+            filter: drop-shadow(0 0 5px rgba(200,155,60,0.5));
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--gold-dark);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hexagon-inner {
+            width: 94%;
+            height: 94%;
+            background: #050a12;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hexagon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hexagon-inner.empty {
+            background: #0d151f;
+            font-size: 1.6rem;
+            color: #29384c;
+        }
+
+        .hexagon-container:hover .hexagon-inner.empty {
+            color: var(--gold-primary);
+            background: #131f2e;
+        }
+
+        .champ-name {
+            margin-top: 6px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            min-height: 14px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+
+        /* --- PANEL DE BUSQUEDA LATERAL (IGUAL A LA IMAGEN) --- */
+        .search-panel {
+            width: 25%;
+            background: var(--panel-bg);
+            border: 1px solid #1b2531;
+            border-radius: 4px;
+            padding: 12px;
+            display: none; /* Se activa dinámicamente */
+            flex-direction: column;
+            gap: 12px;
+            z-index: 5;
+            box-sizing: border-box;
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            bottom: 25px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+
+        /* Flechita decorativa que apunta al hexágono activo */
+        .search-panel::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 45%;
+            width: 10px;
+            height: 10px;
+            background: var(--panel-bg);
+            border-left: 1px solid #1b2531;
+            border-bottom: 1px solid #1b2531;
+            transform: rotate(45deg);
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b626c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-size: cover;
+}
+
+        .search-bar {
+            width: 100%;
+            background: #03060a;
+            border: 1px solid #162231;
+            padding: 8px 8px 8px 30px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+        }
+
+        /* Cuadrícula compacta de retratos */
+       .champ-grid-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: max-content; /* <-- CLAVE: Evita que las filas se aplasten a 0px */
+    gap: 6px;
+    padding-right: 4px;
+}
+
+        /* Estilo de la barra de scroll del buscador */
+        .champ-grid-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .champ-grid-list::-webkit-scrollbar-thumb {
+            background: var(--gold-dark);
+            border-radius: 2px;
+        }
+
+        .champ-portrait-item {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    position: relative; 
+    border: 1px solid #162231;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+
+        .champ-portrait-item:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .champ-portrait-item img {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+        /* Tooltip simple nativo con el nombre */
+        .champ-portrait-item::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            font-size: 0.55rem;
+            text-align: center;
+            padding: 2px 0;
+            opacity: 0;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .champ-portrait-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Línea estética inferior divisoria */
+        .bottom-divider {
+            width: 100%;
+            max-width: 1200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1e2834 20%, #1e2834 80%, transparent);
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #1e2834;
+            letter-spacing: 4px;
+        }
+        .app-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .season-subtitle {
+            color: var(--gold-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .main-title {
+            margin: 0;
+            font-family: 'Georgia', 'Times New Roman', serif; /* Imita la fuente Beaufort de Riot */
+            font-size: 3rem;
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .action-row-2 {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #1e2834;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action svg { width: 14px; height: 14px; }
+
+        .btn-export {
+            border-color: var(--gold-dark);
+            color: var(--gold-primary);
+        }
+        .btn-export:hover { background: rgba(200, 155, 60, 0.1); }
+
+        .btn-import { color: #f0e6d2; }
+        .btn-import:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .btn-reset {
+            border-color: #8b1a1a;
+            color: #d92e2e;
+        }
+        .btn-reset:hover { background: rgba(217, 46, 46, 0.1); }
+
+        .header-summoner-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            margin-top: -10px;
+        }
+
+        .summoner-label { color: var(--text-dim); }
+
+        .summoner-name {
+            color: var(--gold-primary);
+            font-weight: bold;
+            outline: none;
+            border-bottom: 1px dashed transparent;
+            transition: border-color 0.2s;
+        }
+        .summoner-name:focus, .summoner-name:hover {
+            border-bottom: 1px dashed var(--gold-primary);
+        }
+
+        .btn-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid var(--gold-dark);
+            color: var(--gold-primary);
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: background 0.2s;
+        }
+        .btn-link:hover { background: rgba(200, 155, 60, 0.1); }
+        .btn-link svg { width: 12px; height: 12px; }
+
+        .header-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0d151f;
+            border: 1px solid #162231;
+            color: var(--text-dim);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter:hover {
+            background: #141f2f;
+            color: var(--text-light);
+        }
+
+        .btn-filter.active {
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+            box-shadow: inset 0 0 10px rgba(200, 155, 60, 0.1);
+        }
+
+        .header-divider-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1e2834 50%, transparent);
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
