@@ -110,6 +110,10 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
         }
 
         .btn-random:hover {
@@ -293,12 +297,14 @@
         }
 
         .search-box-wrapper::before {
-            content: '🔍';
-            position: absolute;
-            left: 10px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
+    content: '';
+    position: absolute;
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b626c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-size: cover;
+}
 
         .search-bar {
             width: 100%;
@@ -404,10 +410,15 @@
             
             <div class="role-info">
                 <div class="role-header">
-                    <div class="role-badge">🛡️</div>
-                    <div class="role-title">Rol: Top</div>
-                    <button class="btn-random" onclick="pickRandom('top')">🎲 Random</button>
-                </div>
+    <div class="role-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="role-title">Rol: Top</div>
+    <button class="btn-random" onclick="pickRandom('top')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        RANDOM
+    </button>
+</div>
                 <div class="role-subtitle">La Línea del Duelo</div>
                 <div class="role-description">
                     El guerrero solitario de la Grieta. Aguanta la línea, domina los duelos 1v1 y presiona el splitpush en late game. Bruisers, tanques y duelistas — la línea del duelo recompensa al más resistente.
@@ -473,10 +484,15 @@
             <div class="bg-watermark">JG</div>
             <div class="role-info">
                 <div class="role-header">
-                    <div class="role-badge">⚔️</div>
-                    <div class="role-title">Rol: Jungle</div>
-                    <button class="btn-random" onclick="pickRandom('jungle')">🎲 Random</button>
-                </div>
+    <div class="role-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M9.5 6.5L12 9"/><path d="M3 21l5.5-5.5"/><path d="M15 4.5l4.5 4.5"/></svg>
+    </div>
+    <div class="role-title">Rol: Jungle</div>
+    <button class="btn-random" onclick="pickRandom('jungle')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        RANDOM
+    </button>
+</div>
                 <div class="role-subtitle">El Motor del Equipo</div>
                 <div class="role-description">
                     Controla los objetivos neutrales, asegura los campamentos y genera ventajas estratégicas mediante emboscadas calculadas en las líneas aliadas.
@@ -536,16 +552,21 @@
             </div>
         </div>
 
-        <div class="bottom-divider">› › 🔮 ‹ ‹</div>
+        <div class="bottom-divider">› › ◆ ‹ ‹</div>
 
         <div class="role-card" id="mid-card">
             <div class="bg-watermark">MID</div>
             <div class="role-info">
                 <div class="role-header">
-                    <div class="role-badge">🔮</div>
-                    <div class="role-title">Rol: Mid</div>
-                    <button class="btn-random" onclick="pickRandom('mid')">🎲 Random</button>
-                </div>
+    <div class="role-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+    </div>
+    <div class="role-title">Rol: Mid</div>
+    <button class="btn-random" onclick="pickRandom('mid')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        RANDOM
+    </button>
+</div>
                 <div class="role-subtitle">El Epicentro de la Grieta</div>
                 <div class="role-description">
                     Línea de rotación veloz e impacto masivo. Magos de control de oleadas y asesinos letales con alta movilidad y ráfagas de daño explosivo.
