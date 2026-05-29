@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Champion Pool Generator</title>
+    <title>Champion Pool Generator - Riot Style</title>
     <style>
         :root {
             --bg-dark: #060a10;
@@ -14,6 +14,7 @@
             --text-dim: #a0a5b0;
             --text-muted: #5b626c;
             --border-color: #1e2834;
+            --panel-bg: #03080f;
         }
 
         body {
@@ -32,10 +33,10 @@
             flex-direction: column;
             gap: 40px;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
         }
 
-        /* --- TARJETA DE ROL (ESTILO FIEL A LA IMAGEN) --- */
+        /* --- TARJETA DE ROL PRINCIPAL --- */
         .role-card {
             background: var(--card-bg);
             border: 1px solid #141f2f;
@@ -43,14 +44,15 @@
             padding: 35px;
             display: flex;
             position: relative;
-            overflow: hidden;
+            min-height: 420px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box;
         }
 
-        /* Texto gigante de fondo */
+        /* Marca de agua de fondo texto gigante */
         .bg-watermark {
             position: absolute;
-            right: 40px;
+            right: 250px;
             top: -10px;
             font-size: 9rem;
             font-weight: 900;
@@ -59,15 +61,18 @@
             pointer-events: none;
             user-select: none;
             text-transform: uppercase;
+            z-index: 1;
         }
 
-        /* Columna Izquierda: Información del Rol */
+        /* Columna Izquierda: Info del Rol */
         .role-info {
-            width: 35%;
+            width: 32%;
             z-index: 2;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            padding-right: 15px;
+            box-sizing: border-box;
         }
 
         .role-header {
@@ -83,10 +88,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.9rem;
         }
 
         .role-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: var(--text-light);
             text-transform: uppercase;
@@ -97,7 +103,7 @@
             background: transparent;
             border: 1px solid var(--gold-dark);
             color: var(--gold-primary);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             padding: 3px 8px;
             border-radius: 4px;
             cursor: pointer;
@@ -114,42 +120,43 @@
         .role-subtitle {
             font-style: italic;
             color: var(--text-dim);
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .role-description {
             color: var(--text-muted);
             font-size: 0.85rem;
-            line-height: 1.5;
-            max-width: 90%;
+            line-height: 1.6;
         }
 
         .tags-container {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             margin-top: 5px;
         }
 
         .tag {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid #1a222d;
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             padding: 4px 10px;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        /* Columna Derecha: Selección Personal (Hexágonos) */
+        /* Columna Central/Derecha: Los Hexágonos */
         .role-selection {
-            width: 65%;
+            width: 43%;
             z-index: 2;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 20px;
+            box-sizing: border-box;
         }
 
         .selection-title {
@@ -157,14 +164,14 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .hex-grid {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         .hex-row {
@@ -172,7 +179,7 @@
             gap: 15px;
         }
 
-        /* --- MARCOS HEXAGONALES --- */
+        /* Marcos Hexagonales Clásicos */
         .hex-cell {
             display: flex;
             flex-direction: column;
@@ -189,7 +196,12 @@
         }
 
         .hexagon-container:hover {
-            transform: scale(1.05);
+            transform: scale(1.06);
+        }
+
+        .hexagon-container.active .hexagon {
+            background: var(--gold-primary);
+            filter: drop-shadow(0 0 5px rgba(200,155,60,0.5));
         }
 
         .hexagon {
@@ -222,7 +234,7 @@
 
         .hexagon-inner.empty {
             background: #0d151f;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: #29384c;
         }
 
@@ -232,95 +244,148 @@
         }
 
         .champ-name {
-            margin-top: 8px;
-            font-size: 0.75rem;
+            margin-top: 6px;
+            font-size: 0.7rem;
             color: var(--text-dim);
             text-align: center;
             min-height: 14px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* --- MODAL / BUSCADOR DESPLEGABLE --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 100;
-            justify-content: center;
+
+        /* --- PANEL DE BUSQUEDA LATERAL (IGUAL A LA IMAGEN) --- */
+        .search-panel {
+            width: 25%;
+            background: var(--panel-bg);
+            border: 1px solid #1b2531;
+            border-radius: 4px;
+            padding: 12px;
+            display: none; /* Se activa dinámicamente */
+            flex-direction: column;
+            gap: 12px;
+            z-index: 5;
+            box-sizing: border-box;
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            bottom: 25px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+
+        /* Flechita decorativa que apunta al hexágono activo */
+        .search-panel::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 45%;
+            width: 10px;
+            height: 10px;
+            background: var(--panel-bg);
+            border-left: 1px solid #1b2531;
+            border-bottom: 1px solid #1b2531;
+            transform: rotate(45deg);
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            display: flex;
             align-items: center;
         }
 
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--gold-primary);
-            padding: 25px;
-            border-radius: 6px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 0 20px rgba(200,155,60,0.2);
+        .search-box-wrapper::before {
+            content: '🔍';
+            position: absolute;
+            left: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
-        .modal-header {
-            font-size: 1rem;
-            color: var(--gold-primary);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        .search-input {
+        .search-bar {
             width: 100%;
-            padding: 10px;
-            background: #050a12;
-            border: 1px solid var(--border-color);
+            background: #03060a;
+            border: 1px solid #162231;
+            padding: 8px 8px 8px 30px;
             color: var(--text-light);
-            border-radius: 4px;
+            font-size: 0.8rem;
+            border-radius: 2px;
             box-sizing: border-box;
-            margin-bottom: 15px;
         }
 
-        .search-input:focus {
+        .search-bar:focus {
             outline: none;
             border-color: var(--gold-primary);
         }
 
-        .champ-list {
-            max-height: 250px;
+        /* Cuadrícula compacta de retratos */
+        .champ-grid-list {
+            flex-grow: 1;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding-right: 4px;
         }
 
-        .champ-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
+        /* Estilo de la barra de scroll del buscador */
+        .champ-grid-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .champ-grid-list::-webkit-scrollbar-thumb {
+            background: var(--gold-dark);
+            border-radius: 2px;
+        }
+
+        .champ-portrait-item {
+            aspect-ratio: 1;
+            border: 1px solid #162231;
             cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.15s;
         }
 
-        .champ-item:hover {
-            background: rgba(200,155,60,0.1);
+        .champ-portrait-item:hover {
+            border-color: var(--gold-primary);
         }
 
-        .champ-item img {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-            border: 1px solid var(--gold-dark);
+        .champ-portrait-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .btn-close {
-            background: #1e2834;
-            color: var(--text-light);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 15px;
-            float: right;
+        /* Tooltip simple nativo con el nombre */
+        .champ-portrait-item::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            font-size: 0.55rem;
+            text-align: center;
+            padding: 2px 0;
+            opacity: 0;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .champ-portrait-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Línea estética inferior divisoria */
+        .bottom-divider {
+            width: 100%;
+            max-width: 1200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1e2834 20%, #1e2834 80%, transparent);
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #1e2834;
+            letter-spacing: 4px;
         }
     </style>
 </head>
@@ -339,7 +404,7 @@
                 </div>
                 <div class="role-subtitle">La Línea del Duelo</div>
                 <div class="role-description">
-                    El guerrero solitario de la Grieta. Aguanta la línea, domina los duelos 1v1 y presiona el splitpush en late game. Bruisers, tanques y duelistas.
+                    El guerrero solitario de la Grieta. Aguanta la línea, domina los duelos 1v1 y presiona el splitpush en late game. Bruisers, tanques y duelistas — la línea del duelo recompensa al más resistente.
                 </div>
                 <div class="tags-container">
                     <span class="tag">Bruiser</span>
@@ -353,19 +418,19 @@
                 <div class="hex-grid">
                     <div class="hex-row">
                         <div class="hex-cell">
-                            <div class="hexagon-container" onclick="openSelector('top', 0)">
+                            <div class="hexagon-container" id="top-hex-0" onclick="toggleSearchPanel('top', 0)">
                                 <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-0">+</div></div>
                             </div>
                             <div class="champ-name" id="top-name-0"></div>
                         </div>
                         <div class="hex-cell">
-                            <div class="hexagon-container" onclick="openSelector('top', 1)">
+                            <div class="hexagon-container" id="top-hex-1" onclick="toggleSearchPanel('top', 1)">
                                 <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-1">+</div></div>
                             </div>
                             <div class="champ-name" id="top-name-1"></div>
                         </div>
                         <div class="hex-cell">
-                            <div class="hexagon-container" onclick="openSelector('top', 2)">
+                            <div class="hexagon-container" id="top-hex-2" onclick="toggleSearchPanel('top', 2)">
                                 <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-2">+</div></div>
                             </div>
                             <div class="champ-name" id="top-name-2"></div>
@@ -373,13 +438,13 @@
                     </div>
                     <div class="hex-row">
                         <div class="hex-cell">
-                            <div class="hexagon-container" onclick="openSelector('top', 3)">
+                            <div class="hexagon-container" id="top-hex-3" onclick="toggleSearchPanel('top', 3)">
                                 <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-3">+</div></div>
                             </div>
                             <div class="champ-name" id="top-name-3"></div>
                         </div>
                         <div class="hex-cell">
-                            <div class="hexagon-container" onclick="openSelector('top', 4)">
+                            <div class="hexagon-container" id="top-hex-4" onclick="toggleSearchPanel('top', 4)">
                                 <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-4">+</div></div>
                             </div>
                             <div class="champ-name" id="top-name-4"></div>
@@ -387,7 +452,16 @@
                     </div>
                 </div>
             </div>
+
+            <div class="search-panel" id="top-search-panel">
+                <div class="search-box-wrapper">
+                    <input type="text" class="search-bar" id="top-search-input" placeholder="Buscar" oninput="filterChampions('top')">
+                </div>
+                <div class="champ-grid-list" id="top-champ-list"></div>
+            </div>
         </div>
+
+        <div class="bottom-divider">› › ⚔ ‹ ‹</div>
 
         <div class="role-card" id="jungle-card">
             <div class="bg-watermark">JG</div>
@@ -399,7 +473,7 @@
                 </div>
                 <div class="role-subtitle">El Motor del Equipo</div>
                 <div class="role-description">
-                    Controla los objetivos neutrales, asegura los campamentos y genera ventajas mediante emboscadas en las líneas aliadas.
+                    Controla los objetivos neutrales, asegura los campamentos y genera ventajas estratégicas mediante emboscadas calculadas en las líneas aliadas.
                 </div>
                 <div class="tags-container">
                     <span class="tag">Asesino</span>
@@ -407,21 +481,56 @@
                     <span class="tag">Ganker</span>
                 </div>
             </div>
+
             <div class="role-selection">
                 <div class="selection-title">Tu Selección Personal</div>
                 <div class="hex-grid">
                     <div class="hex-row">
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 0)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-0">+</div></div></div><div class="champ-name" id="jungle-name-0"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 1)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-1">+</div></div></div><div class="champ-name" id="jungle-name-1"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 2)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-2">+</div></div></div><div class="champ-name" id="jungle-name-2"></div></div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="jungle-hex-0" onclick="toggleSearchPanel('jungle', 0)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-0">+</div></div>
+                            </div>
+                            <div class="champ-name" id="jungle-name-0"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="jungle-hex-1" onclick="toggleSearchPanel('jungle', 1)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-1">+</div></div>
+                            </div>
+                            <div class="champ-name" id="jungle-name-1"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="jungle-hex-2" onclick="toggleSearchPanel('jungle', 2)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-2">+</div></div>
+                            </div>
+                            <div class="champ-name" id="jungle-name-2"></div>
+                        </div>
                     </div>
                     <div class="hex-row">
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 3)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-3">+</div></div></div><div class="champ-name" id="jungle-name-3"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 4)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-4">+</div></div></div><div class="champ-name" id="jungle-name-4"></div></div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="jungle-hex-3" onclick="toggleSearchPanel('jungle', 3)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-3">+</div></div>
+                            </div>
+                            <div class="champ-name" id="jungle-name-3"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="jungle-hex-4" onclick="toggleSearchPanel('jungle', 4)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-4">+</div></div>
+                            </div>
+                            <div class="champ-name" id="jungle-name-4"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="search-panel" id="jungle-search-panel">
+                <div class="search-box-wrapper">
+                    <input type="text" class="search-bar" id="jungle-search-input" placeholder="Buscar" oninput="filterChampions('jungle')">
+                </div>
+                <div class="champ-grid-list" id="jungle-champ-list"></div>
+            </div>
         </div>
+
+        <div class="bottom-divider">› › 🔮 ‹ ‹</div>
 
         <div class="role-card" id="mid-card">
             <div class="bg-watermark">MID</div>
@@ -433,7 +542,7 @@
                 </div>
                 <div class="role-subtitle">El Epicentro de la Grieta</div>
                 <div class="role-description">
-                    Línea de rotación e impacto masivo. Magos de control y asesinos letales con alta capacidad de daño y control de mapa.
+                    Línea de rotación veloz e impacto masivo. Magos de control de oleadas y asesinos letales con alta movilidad y ráfagas de daño explosivo.
                 </div>
                 <div class="tags-container">
                     <span class="tag">Mago</span>
@@ -441,66 +550,126 @@
                     <span class="tag">Roamer</span>
                 </div>
             </div>
+
             <div class="role-selection">
                 <div class="selection-title">Tu Selección Personal</div>
                 <div class="hex-grid">
                     <div class="hex-row">
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 0)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-0">+</div></div></div><div class="champ-name" id="mid-name-0"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 1)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-1">+</div></div></div><div class="champ-name" id="mid-name-1"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 2)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-2">+</div></div></div><div class="champ-name" id="mid-name-2"></div></div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="mid-hex-0" onclick="toggleSearchPanel('mid', 0)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-0">+</div></div>
+                            </div>
+                            <div class="champ-name" id="mid-name-0"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="mid-hex-1" onclick="toggleSearchPanel('mid', 1)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-1">+</div></div>
+                            </div>
+                            <div class="champ-name" id="mid-name-1"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="mid-hex-2" onclick="toggleSearchPanel('mid', 2)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-2">+</div></div>
+                            </div>
+                            <div class="champ-name" id="mid-name-2"></div>
+                        </div>
                     </div>
                     <div class="hex-row">
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 3)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-3">+</div></div></div><div class="champ-name" id="mid-name-3"></div></div>
-                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 4)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-4">+</div></div></div><div class="champ-name" id="mid-name-4"></div></div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="mid-hex-3" onclick="toggleSearchPanel('mid', 3)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-3">+</div></div>
+                            </div>
+                            <div class="champ-name" id="mid-name-3"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="mid-hex-4" onclick="toggleSearchPanel('mid', 4)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-4">+</div></div>
+                            </div>
+                            <div class="champ-name" id="mid-name-4"></div>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="search-panel" id="mid-search-panel">
+                <div class="search-box-wrapper">
+                    <input type="text" class="search-bar" id="mid-search-input" placeholder="Buscar" oninput="filterChampions('mid')">
+                </div>
+                <div class="champ-grid-list" id="mid-champ-list"></div>
             </div>
         </div>
 
     </div>
 
-    <div class="modal" id="selectorModal">
-        <div class="modal-content">
-            <div class="modal-header">Selecciona un Campeón</div>
-            <input type="text" class="search-input" id="searchBar" placeholder="Buscar campeón..." oninput="filterChampions()">
-            <div class="champ-list" id="championListContainer">
-                </div>
-            <button class="btn-close" onclick="closeSelector()">Cancelar</button>
-        </div>
-    </div>
-
     <script>
-        // Muestra de campeones (Puedes añadir los que quieras usando sus IDs exactos de Riot)
+        // Amplio listado de campeones populares ordenados alfabéticamente
         const champions = [
             { name: "Aatrox", id: "Aatrox" }, { name: "Ahri", id: "Ahri" }, { name: "Akali", id: "Akali" },
-            { name: "Akshan", id: "Akshan" }, { name: "Anivia", id: "Anivia" }, { name: "Azir", id: "Azir" },
-            { name: "Camille", id: "Camille" }, { name: "Darius", id: "Darius" }, { name: "Ekko", id: "Ekko" },
-            { name: "Fiora", id: "Fiora" }, { name: "Gnar", id: "Gnar" }, { name: "Hecarim", id: "Hecarim" },
-            { name: "Jax", id: "Jax" }, { name: "Katarina", id: "Katarina" }, { name: "Lee Sin", id: "LeeSin" },
-            { name: "Lux", id: "Lux" }, { name: "Malphite", id: "Malphite" }, { name: "Orianna", id: "Orianna" },
-            { name: "Riven", id: "Riven" }, { name: "Sylas", id: "Sylas" }, { name: "Viego", id: "Viego" },
+            { name: "Akshan", id: "Akshan" }, { name: "Anivia", id: "Anivia" }, { name: "Annie", id: "Annie" },
+            { name: "Ashe", id: "Ashe" }, { name: "Azir", id: "Azir" }, { name: "Bard", id: "Bardo" },
+            { name: "Briar", id: "Briar" }, { name: "Camille", id: "Camille" }, { name: "Darius", id: "Darius" },
+            { name: "Diana", id: "Diana" }, { name: "Ekko", id: "Ekko" }, { name: "Evelynn", id: "Evelynn" },
+            { name: "Ezreal", id: "Ezreal" }, { name: "Fiora", id: "Fiora" }, { name: "Garen", id: "Garen" },
+            { name: "Gnar", id: "Gnar" }, { name: "Hecarim", id: "Hecarim" }, { name: "Hwei", id: "Hwei" },
+            { name: "Irelia", id: "Irelia" }, { name: "Jax", id: "Jax" }, { name: "Jhin", id: "Jhin" },
+            { name: "K'Sante", id: "KSante" }, { name: "Kaisa", id: "Kaisa" }, { name: "Katarina", id: "Katarina" },
+            { name: "Kayn", id: "Kayn" }, { name: "Khazix", id: "Khazix" }, { name: "Lee Sin", id: "LeeSin" },
+            { name: "Leona", id: "Leona" }, { name: "Lux", id: "Lux" }, { name: "Malphite", id: "Malphite" },
+            { name: "Nidalee", id: "Nidalee" }, { name: "Nocturne", id: "Nocturne" }, { name: "Orianna", id: "Orianna" },
+            { name: "Pantheon", id: "Pantheon" }, { name: "Riven", id: "Riven" }, { name: "Shaco", id: "Shaco" },
+            { name: "Smolder", id: "Smolder" }, { name: "Sylas", id: "Sylas" }, { name: "Syndra", id: "Syndra" },
+            { name: "Thresh", id: "Thresh" }, { name: "Twisted Fate", id: "TwistedFate" }, { name: "Viego", id: "Viego" },
+            { name: "Volibear", id: "Volibear" }, { name: "Yasuo", id: "Yasuo" }, { name: "Yone", id: "Yone" },
             { name: "Zed", id: "Zed" }
         ].sort((a,b) => a.name.localeCompare(b.name));
 
-        let currentRole = '';
-        let currentSlot = null;
+        // Variables de estado global
+        let activeRole = null;
+        let activeSlot = null;
 
-        function openSelector(role, slot) {
-            currentRole = role;
-            currentSlot = slot;
-            document.getElementById('selectorModal').style.display = 'flex';
-            document.getElementById('searchBar').value = '';
-            filterChampions();
-            document.getElementById('searchBar').focus();
+        function toggleSearchPanel(role, slot) {
+            const panel = document.getElementById(`${role}-search-panel`);
+            
+            // Si el panel ya está abierto en el MISMO hexágono, lo cerramos
+            if (activeRole === role && activeSlot === slot) {
+                panel.style.display = 'none';
+                clearActiveHexagons();
+                activeRole = null;
+                activeSlot = null;
+                return;
+            }
+
+            // Cerrar cualquier otro panel abierto previamente
+            hideAllPanels();
+            clearActiveHexagons();
+
+            // Activar nuevo estado
+            activeRole = role;
+            activeSlot = slot;
+
+            // Iluminar el marco del hexágono activo
+            document.getElementById(`${role}-hex-${slot}`).classList.add('active');
+
+            // Mostrar el panel lateral de este rol específico
+            panel.style.display = 'flex';
+            
+            // Resetear buscador e imprimir lista completa
+            document.getElementById(`${role}-search-input`).value = '';
+            filterChampions(role);
+            document.getElementById(`${role}-search-input`).focus();
         }
 
-        function closeSelector() {
-            document.getElementById('selectorModal').style.display = 'none';
+        function hideAllPanels() {
+            document.querySelectorAll('.search-panel').forEach(p => p.style.display = 'none');
         }
 
-        function filterChampions() {
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            const container = document.getElementById('championListContainer');
+        function clearActiveHexagons() {
+            document.querySelectorAll('.hexagon-container').forEach(h => h.classList.remove('active'));
+        }
+
+        function filterChampions(role) {
+            const query = document.getElementById(`${role}-search-input`).value.toLowerCase();
+            const container = document.getElementById(`${role}-champ-list`);
             container.innerHTML = '';
 
             const filtered = champions.filter(c => c.name.toLowerCase().includes(query));
@@ -508,36 +677,53 @@
             filtered.forEach(champ => {
                 const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/${champ.id}.png`;
                 const item = document.createElement('div');
-                item.className = 'champ-item';
-                item.innerHTML = `<img src="${imgUrl}"> <span>${champ.name}</span>`;
-                item.onclick = () => selectChampion(champ);
+                item.className = 'champ-portrait-item';
+                item.setAttribute('data-name', champ.name);
+                item.innerHTML = `<img src="${imgUrl}" alt="${champ.name}">`;
+                
+                item.onclick = () => {
+                    selectChampion(role, activeSlot, champ);
+                };
                 container.appendChild(item);
             });
         }
 
-        function selectChampion(champ) {
-            const innerElement = document.getElementById(`${currentRole}-inner-${currentSlot}`);
-            const nameElement = document.getElementById(`${currentRole}-name-${currentSlot}`);
+        function selectChampion(role, slot, champ) {
+            const innerElement = document.getElementById(`${role}-inner-${slot}`);
+            const nameElement = document.getElementById(`${role}-name-${slot}`);
             const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/${champ.id}.png`;
 
             innerElement.classList.remove('empty');
             innerElement.innerHTML = `<img src="${imgUrl}" alt="${champ.name}">`;
             nameElement.textContent = champ.name;
 
-            closeSelector();
+            // Cerrar el panel automáticamente al elegir
+            document.getElementById(`${role}-search-panel`).style.display = 'none';
+            clearActiveHexagons();
+            activeRole = null;
+            activeSlot = null;
         }
 
         function pickRandom(role) {
-            // Elige un campeón aleatorio para todos los huecos vacíos del rol seleccionado
-            for(let i=0; i<5; i++) {
+            // Rellena de forma aleatoria los huecos que falten por rellenar en el rol indicado
+            for (let i = 0; i < 5; i++) {
                 const inner = document.getElementById(`${role}-inner-${i}`);
-                if(inner && inner.classList.contains('empty')) {
+                if (inner && inner.classList.contains('empty')) {
                     const randomChamp = champions[Math.floor(Math.random() * champions.length)];
-                    currentRole = role;
-                    currentSlot = i;
-                    selectChampion(randomChamp);
+                    selectChampionDirect(role, i, randomChamp);
                 }
             }
+        }
+
+        // Función interna directa para el botón de Random
+        function selectChampionDirect(role, slot, champ) {
+            const innerElement = document.getElementById(`${role}-inner-${slot}`);
+            const nameElement = document.getElementById(`${role}-name-${slot}`);
+            const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/${champ.id}.png`;
+
+            innerElement.classList.remove('empty');
+            innerElement.innerHTML = `<img src="${imgUrl}" alt="${champ.name}">`;
+            nameElement.textContent = champ.name;
         }
     </script>
 </body>
