@@ -703,7 +703,79 @@
 
         <div class="bottom-divider">› › ◆ ‹ ‹</div>
 
-        
+        <!-- TARJETA SUPPORT -->
+        <div class="role-card" id="supp-card">
+            <div class="bg-watermark">SUPP</div>
+            <div class="role-info">
+                <div class="role-header">
+                    <div class="role-badge">
+                        <!-- Icono de Corazón/Apoyo -->
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div class="role-title">Rol: Support</div>
+                    <button class="btn-random" onclick="pickRandom('supp')">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                        RANDOM
+                    </button>
+                </div>
+                <div class="role-subtitle">El Pilar del Equipo</div>
+                <div class="role-description">
+                    Protege a los aliados, controla la visión del mapa e inicia las peleas. Eres el guardián de la botlane y el estratega silencioso que asegura la victoria.
+                </div>
+                <div class="tags-container">
+                    <span class="tag">Enchanter</span>
+                    <span class="tag">Engage</span>
+                    <span class="tag">Peel</span>
+                </div>
+            </div>
+
+            <div class="role-selection">
+                <div class="selection-title">Tu Selección Personal</div>
+                <div class="hex-grid">
+                    <div class="hex-row">
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="supp-hex-0" onclick="toggleSearchPanel('supp', 0)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="supp-inner-0">+</div></div>
+                            </div>
+                            <div class="champ-name" id="supp-name-0"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="supp-hex-1" onclick="toggleSearchPanel('supp', 1)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="supp-inner-1">+</div></div>
+                            </div>
+                            <div class="champ-name" id="supp-name-1"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="supp-hex-2" onclick="toggleSearchPanel('supp', 2)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="supp-inner-2">+</div></div>
+                            </div>
+                            <div class="champ-name" id="supp-name-2"></div>
+                        </div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="supp-hex-3" onclick="toggleSearchPanel('supp', 3)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="supp-inner-3">+</div></div>
+                            </div>
+                            <div class="champ-name" id="supp-name-3"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" id="supp-hex-4" onclick="toggleSearchPanel('supp', 4)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="supp-inner-4">+</div></div>
+                            </div>
+                            <div class="champ-name" id="supp-name-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-panel" id="supp-search-panel">
+                <div class="search-box-wrapper">
+                    <input type="text" class="search-bar" id="supp-search-input" placeholder="Buscar" oninput="filterChampions('supp')">
+                </div>
+                <div class="champ-grid-list" id="supp-champ-list"></div>
+            </div>
+        </div>
 
     </div>
     
