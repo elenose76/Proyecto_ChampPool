@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Champion Pool Generator</title>
+    <style>
+        :root {
+            --bg-dark: #060a10;
+            --card-bg: #09111c;
+            --gold-primary: #c89b3c;
+            --gold-dark: #785a28;
+            --text-light: #f0e6d2;
+            --text-dim: #a0a5b0;
+            --text-muted: #5b626c;
+            --border-color: #1e2834;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pool-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* --- TARJETA DE ROL (ESTILO FIEL A LA IMAGEN) --- */
+        .role-card {
+            background: var(--card-bg);
+            border: 1px solid #141f2f;
+            border-radius: 6px;
+            padding: 35px;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Texto gigante de fondo */
+        .bg-watermark {
+            position: absolute;
+            right: 40px;
+            top: -10px;
+            font-size: 9rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            letter-spacing: 5px;
+            pointer-events: none;
+            user-select: none;
+            text-transform: uppercase;
+        }
+
+        /* Columna Izquierda: Información del Rol */
+        .role-info {
+            width: 35%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .role-badge {
+            border: 1px solid var(--gold-primary);
+            padding: 4px 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-random {
+            background: transparent;
+            border: 1px solid var(--gold-dark);
+            color: var(--gold-primary);
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .btn-random:hover {
+            background: var(--gold-primary);
+            color: var(--bg-dark);
+        }
+
+        .role-subtitle {
+            font-style: italic;
+            color: var(--text-dim);
+            font-size: 1rem;
+        }
+
+        .role-description {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #1a222d;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Columna Derecha: Selección Personal (Hexágonos) */
+        .role-selection {
+            width: 65%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .selection-title {
+            color: var(--gold-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .hex-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hex-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* --- MARCOS HEXAGONALES --- */
+        .hex-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90px;
+        }
+
+        .hexagon-container {
+            position: relative;
+            width: 85px;
+            height: 95px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .hexagon-container:hover {
+            transform: scale(1.05);
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--gold-dark);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hexagon-inner {
+            width: 94%;
+            height: 94%;
+            background: #050a12;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hexagon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hexagon-inner.empty {
+            background: #0d151f;
+            font-size: 1.8rem;
+            color: #29384c;
+        }
+
+        .hexagon-container:hover .hexagon-inner.empty {
+            color: var(--gold-primary);
+            background: #131f2e;
+        }
+
+        .champ-name {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-align: center;
+            min-height: 14px;
+        }
+
+        /* --- MODAL / BUSCADOR DESPLEGABLE --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--gold-primary);
+            padding: 25px;
+            border-radius: 6px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 0 20px rgba(200,155,60,0.2);
+        }
+
+        .modal-header {
+            font-size: 1rem;
+            color: var(--gold-primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            background: #050a12;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+        }
+
+        .champ-list {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .champ-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .champ-item:hover {
+            background: rgba(200,155,60,0.1);
+        }
+
+        .champ-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid var(--gold-dark);
+        }
+
+        .btn-close {
+            background: #1e2834;
+            color: var(--text-light);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pool-container">
+        
+        <div class="role-card" id="top-card">
+            <div class="bg-watermark">TOP</div>
+            
+            <div class="role-info">
+                <div class="role-header">
+                    <div class="role-badge">🛡️</div>
+                    <div class="role-title">Rol: Top</div>
+                    <button class="btn-random" onclick="pickRandom('top')">🎲 Random</button>
+                </div>
+                <div class="role-subtitle">La Línea del Duelo</div>
+                <div class="role-description">
+                    El guerrero solitario de la Grieta. Aguanta la línea, domina los duelos 1v1 y presiona el splitpush en late game. Bruisers, tanques y duelistas.
+                </div>
+                <div class="tags-container">
+                    <span class="tag">Bruiser</span>
+                    <span class="tag">Duelista</span>
+                    <span class="tag">Splitpush</span>
+                </div>
+            </div>
+
+            <div class="role-selection">
+                <div class="selection-title">Tu Selección Personal</div>
+                <div class="hex-grid">
+                    <div class="hex-row">
+                        <div class="hex-cell">
+                            <div class="hexagon-container" onclick="openSelector('top', 0)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-0">+</div></div>
+                            </div>
+                            <div class="champ-name" id="top-name-0"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" onclick="openSelector('top', 1)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-1">+</div></div>
+                            </div>
+                            <div class="champ-name" id="top-name-1"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" onclick="openSelector('top', 2)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-2">+</div></div>
+                            </div>
+                            <div class="champ-name" id="top-name-2"></div>
+                        </div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell">
+                            <div class="hexagon-container" onclick="openSelector('top', 3)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-3">+</div></div>
+                            </div>
+                            <div class="champ-name" id="top-name-3"></div>
+                        </div>
+                        <div class="hex-cell">
+                            <div class="hexagon-container" onclick="openSelector('top', 4)">
+                                <div class="hexagon"><div class="hexagon-inner empty" id="top-inner-4">+</div></div>
+                            </div>
+                            <div class="champ-name" id="top-name-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="role-card" id="jungle-card">
+            <div class="bg-watermark">JG</div>
+            <div class="role-info">
+                <div class="role-header">
+                    <div class="role-badge">⚔️</div>
+                    <div class="role-title">Rol: Jungle</div>
+                    <button class="btn-random" onclick="pickRandom('jungle')">🎲 Random</button>
+                </div>
+                <div class="role-subtitle">El Motor del Equipo</div>
+                <div class="role-description">
+                    Controla los objetivos neutrales, asegura los campamentos y genera ventajas mediante emboscadas en las líneas aliadas.
+                </div>
+                <div class="tags-container">
+                    <span class="tag">Asesino</span>
+                    <span class="tag">Tanque</span>
+                    <span class="tag">Ganker</span>
+                </div>
+            </div>
+            <div class="role-selection">
+                <div class="selection-title">Tu Selección Personal</div>
+                <div class="hex-grid">
+                    <div class="hex-row">
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 0)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-0">+</div></div></div><div class="champ-name" id="jungle-name-0"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 1)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-1">+</div></div></div><div class="champ-name" id="jungle-name-1"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 2)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-2">+</div></div></div><div class="champ-name" id="jungle-name-2"></div></div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 3)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-3">+</div></div></div><div class="champ-name" id="jungle-name-3"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('jungle', 4)"><div class="hexagon"><div class="hexagon-inner empty" id="jungle-inner-4">+</div></div></div><div class="champ-name" id="jungle-name-4"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="role-card" id="mid-card">
+            <div class="bg-watermark">MID</div>
+            <div class="role-info">
+                <div class="role-header">
+                    <div class="role-badge">🔮</div>
+                    <div class="role-title">Rol: Mid</div>
+                    <button class="btn-random" onclick="pickRandom('mid')">🎲 Random</button>
+                </div>
+                <div class="role-subtitle">El Epicentro de la Grieta</div>
+                <div class="role-description">
+                    Línea de rotación e impacto masivo. Magos de control y asesinos letales con alta capacidad de daño y control de mapa.
+                </div>
+                <div class="tags-container">
+                    <span class="tag">Mago</span>
+                    <span class="tag">Asesino</span>
+                    <span class="tag">Roamer</span>
+                </div>
+            </div>
+            <div class="role-selection">
+                <div class="selection-title">Tu Selección Personal</div>
+                <div class="hex-grid">
+                    <div class="hex-row">
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 0)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-0">+</div></div></div><div class="champ-name" id="mid-name-0"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 1)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-1">+</div></div></div><div class="champ-name" id="mid-name-1"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 2)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-2">+</div></div></div><div class="champ-name" id="mid-name-2"></div></div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 3)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-3">+</div></div></div><div class="champ-name" id="mid-name-3"></div></div>
+                        <div class="hex-cell"><div class="hexagon-container" onclick="openSelector('mid', 4)"><div class="hexagon"><div class="hexagon-inner empty" id="mid-inner-4">+</div></div></div><div class="champ-name" id="mid-name-4"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal" id="selectorModal">
+        <div class="modal-content">
+            <div class="modal-header">Selecciona un Campeón</div>
+            <input type="text" class="search-input" id="searchBar" placeholder="Buscar campeón..." oninput="filterChampions()">
+            <div class="champ-list" id="championListContainer">
+                </div>
+            <button class="btn-close" onclick="closeSelector()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // Muestra de campeones (Puedes añadir los que quieras usando sus IDs exactos de Riot)
+        const champions = [
+            { name: "Aatrox", id: "Aatrox" }, { name: "Ahri", id: "Ahri" }, { name: "Akali", id: "Akali" },
+            { name: "Akshan", id: "Akshan" }, { name: "Anivia", id: "Anivia" }, { name: "Azir", id: "Azir" },
+            { name: "Camille", id: "Camille" }, { name: "Darius", id: "Darius" }, { name: "Ekko", id: "Ekko" },
+            { name: "Fiora", id: "Fiora" }, { name: "Gnar", id: "Gnar" }, { name: "Hecarim", id: "Hecarim" },
+            { name: "Jax", id: "Jax" }, { name: "Katarina", id: "Katarina" }, { name: "Lee Sin", id: "LeeSin" },
+            { name: "Lux", id: "Lux" }, { name: "Malphite", id: "Malphite" }, { name: "Orianna", id: "Orianna" },
+            { name: "Riven", id: "Riven" }, { name: "Sylas", id: "Sylas" }, { name: "Viego", id: "Viego" },
+            { name: "Zed", id: "Zed" }
+        ].sort((a,b) => a.name.localeCompare(b.name));
+
+        let currentRole = '';
+        let currentSlot = null;
+
+        function openSelector(role, slot) {
+            currentRole = role;
+            currentSlot = slot;
+            document.getElementById('selectorModal').style.display = 'flex';
+            document.getElementById('searchBar').value = '';
+            filterChampions();
+            document.getElementById('searchBar').focus();
+        }
+
+        function closeSelector() {
+            document.getElementById('selectorModal').style.display = 'none';
+        }
+
+        function filterChampions() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const container = document.getElementById('championListContainer');
+            container.innerHTML = '';
+
+            const filtered = champions.filter(c => c.name.toLowerCase().includes(query));
+
+            filtered.forEach(champ => {
+                const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/${champ.id}.png`;
+                const item = document.createElement('div');
+                item.className = 'champ-item';
+                item.innerHTML = `<img src="${imgUrl}"> <span>${champ.name}</span>`;
+                item.onclick = () => selectChampion(champ);
+                container.appendChild(item);
+            });
+        }
+
+        function selectChampion(champ) {
+            const innerElement = document.getElementById(`${currentRole}-inner-${currentSlot}`);
+            const nameElement = document.getElementById(`${currentRole}-name-${currentSlot}`);
+            const imgUrl = `https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/${champ.id}.png`;
+
+            innerElement.classList.remove('empty');
+            innerElement.innerHTML = `<img src="${imgUrl}" alt="${champ.name}">`;
+            nameElement.textContent = champ.name;
+
+            closeSelector();
+        }
+
+        function pickRandom(role) {
+            // Elige un campeón aleatorio para todos los huecos vacíos del rol seleccionado
+            for(let i=0; i<5; i++) {
+                const inner = document.getElementById(`${role}-inner-${i}`);
+                if(inner && inner.classList.contains('empty')) {
+                    const randomChamp = champions[Math.floor(Math.random() * champions.length)];
+                    currentRole = role;
+                    currentSlot = i;
+                    selectChampion(randomChamp);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
