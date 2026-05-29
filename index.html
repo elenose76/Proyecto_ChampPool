@@ -8,68 +8,7 @@
     
 </head>
 <body>
-    <header class="app-header">
-            <div class="header-top-row">
-                <div class="header-titles">
-                    <div class="season-subtitle">CHAMPION POOL TEMPORADA 2026</div>
-                    <h1 class="main-title">MI SELECCION DE CAMPEONES</h1>
-                </div>
-                <div class="header-actions">
-                    <button class="btn-action btn-export" onclick="exportPool()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        EXPORTAR POOL
-                    </button>
-                    <div class="action-row-2">
-                        <button class="btn-action btn-import" onclick="importPool()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            IMPORTAR
-                        </button>
-                        <button class="btn-action btn-reset" onclick="resetPool()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            REINICIAR
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="header-summoner-row">
-                <span class="summoner-label">Invocador:</span>
-                <span class="summoner-name" contenteditable="true" spellcheck="false">TuNombreInvocador#EUW</span>
-                <a href="#" class="btn-link" target="_blank">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    VER PERFIL DEEPLOL
-                </a>
-            </div>
-
-            <div class="header-filters">
-                <button class="btn-filter active" onclick="filterByRole('all', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    TODOS LOS ROLES
-                </button>
-                <button class="btn-filter" onclick="filterByRole('top', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    TOP
-                </button>
-                <button class="btn-filter" onclick="filterByRole('jungle', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M9.5 6.5L12 9"/><path d="M3 21l5.5-5.5"/><path d="M15 4.5l4.5 4.5"/></svg>
-                    JGL
-                </button>
-                <button class="btn-filter" onclick="filterByRole('mid', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                    MID
-                </button>
-                <button class="btn-filter" onclick="filterByRole('adc', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    ADC
-                </button>
-                <button class="btn-filter" onclick="filterByRole('supp', this)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    SUPP
-                </button>
-            </div>
-            
-            <div class="header-divider-line"></div>
-        </header>
+    
 
     <div class="pool-container">
         
@@ -587,6 +526,66 @@ fetchAllChampions();
             innerElement.classList.remove('empty');
             innerElement.innerHTML = `<img src="${imgUrl}" alt="${champ.name}">`;
             nameElement.textContent = champ.name;
+        }
+        // ==========================================
+        // FUNCIONES DEL ENCABEZADO
+        // ==========================================
+
+        function filterByRole(role, buttonElement) {
+            // 1. Quitar la clase 'active' de todos los botones
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 2. Añadir la clase 'active' al botón pulsado
+            buttonElement.classList.add('active');
+
+            // 3. Mostrar u ocultar las tarjetas y sus divisores
+            const roles = ['top', 'jungle', 'mid', 'adc', 'supp'];
+            
+            roles.forEach(r => {
+                const card = document.getElementById(`${r}-card`);
+                // Buscamos el divisor que va inmediatamente antes de la tarjeta (si existe)
+                const divider = card ? card.previousElementSibling : null; 
+                
+                if (role === 'all' || role === r) {
+                    if (card) card.style.display = 'flex';
+                    // Ocultamos los divisores si filtramos por rol único para que quede más limpio
+                    if (divider && divider.classList.contains('bottom-divider')) {
+                        divider.style.display = role === 'all' ? 'block' : 'none';
+                    }
+                } else {
+                    if (card) card.style.display = 'none';
+                    if (divider && divider.classList.contains('bottom-divider')) {
+                        divider.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Funciones preparadas para Exportar, Importar y Reiniciar
+        function exportPool() {
+            alert("¡Función de exportar a JSON en desarrollo!");
+            // Aquí irá la lógica para recopilar los datos de los hexágonos y descargar un archivo .json
+        }
+
+        function importPool() {
+            alert("¡Función de importar JSON en desarrollo!");
+            // Aquí irá la lógica para leer un archivo .json y rellenar los hexágonos
+        }
+
+        function resetPool() {
+            if(confirm("¿Estás seguro de que quieres vaciar toda tu selección de campeones?")) {
+                const inners = document.querySelectorAll('.hexagon-inner');
+                const names = document.querySelectorAll('.champ-name');
+                
+                inners.forEach(inner => {
+                    inner.innerHTML = '+';
+                    inner.classList.add('empty');
+                });
+                
+                names.forEach(name => name.textContent = '');
+            }
         }
     </script>
 </body>
