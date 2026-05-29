@@ -317,14 +317,15 @@
         }
 
         /* Cuadrícula compacta de retratos */
-        .champ-grid-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding-right: 4px;
-        }
+       .champ-grid-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: max-content; /* <-- CLAVE: Evita que las filas se aplasten a 0px */
+    gap: 6px;
+    padding-right: 4px;
+}
 
         /* Estilo de la barra de scroll del buscador */
         .champ-grid-list::-webkit-scrollbar {
@@ -336,23 +337,28 @@
         }
 
         .champ-portrait-item {
-            aspect-ratio: 1;
-            border: 1px solid #162231;
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-            transition: border-color 0.15s;
-        }
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    position: relative; 
+    border: 1px solid #162231;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
 
         .champ-portrait-item:hover {
             border-color: var(--gold-primary);
         }
 
         .champ-portrait-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
 
         /* Tooltip simple nativo con el nombre */
         .champ-portrait-item::after {
@@ -603,25 +609,29 @@
 
     <script>
         // Amplio listado de campeones populares ordenados alfabéticamente
-        const champions = [
-            { name: "Aatrox", id: "Aatrox" }, { name: "Ahri", id: "Ahri" }, { name: "Akali", id: "Akali" },
-            { name: "Akshan", id: "Akshan" }, { name: "Anivia", id: "Anivia" }, { name: "Annie", id: "Annie" },
-            { name: "Ashe", id: "Ashe" }, { name: "Azir", id: "Azir" }, { name: "Bard", id: "Bardo" },
-            { name: "Briar", id: "Briar" }, { name: "Camille", id: "Camille" }, { name: "Darius", id: "Darius" },
-            { name: "Diana", id: "Diana" }, { name: "Ekko", id: "Ekko" }, { name: "Evelynn", id: "Evelynn" },
-            { name: "Ezreal", id: "Ezreal" }, { name: "Fiora", id: "Fiora" }, { name: "Garen", id: "Garen" },
-            { name: "Gnar", id: "Gnar" }, { name: "Hecarim", id: "Hecarim" }, { name: "Hwei", id: "Hwei" },
-            { name: "Irelia", id: "Irelia" }, { name: "Jax", id: "Jax" }, { name: "Jhin", id: "Jhin" },
-            { name: "K'Sante", id: "KSante" }, { name: "Kaisa", id: "Kaisa" }, { name: "Katarina", id: "Katarina" },
-            { name: "Kayn", id: "Kayn" }, { name: "Khazix", id: "Khazix" }, { name: "Lee Sin", id: "LeeSin" },
-            { name: "Leona", id: "Leona" }, { name: "Lux", id: "Lux" }, { name: "Malphite", id: "Malphite" },
-            { name: "Nidalee", id: "Nidalee" }, { name: "Nocturne", id: "Nocturne" }, { name: "Orianna", id: "Orianna" },
-            { name: "Pantheon", id: "Pantheon" }, { name: "Riven", id: "Riven" }, { name: "Shaco", id: "Shaco" },
-            { name: "Smolder", id: "Smolder" }, { name: "Sylas", id: "Sylas" }, { name: "Syndra", id: "Syndra" },
-            { name: "Thresh", id: "Thresh" }, { name: "Twisted Fate", id: "TwistedFate" }, { name: "Viego", id: "Viego" },
-            { name: "Volibear", id: "Volibear" }, { name: "Yasuo", id: "Yasuo" }, { name: "Yone", id: "Yone" },
-            { name: "Zed", id: "Zed" }
-        ].sort((a,b) => a.name.localeCompare(b.name));
+        // Variable global vacía que llenaremos con la API
+let champions = [];
+
+// Función para descargar todos los campeones oficiales de Riot
+async function fetchAllChampions() {
+    try {
+        // Usamos la misma versión (14.3.1) que ya usas para las imágenes
+        const response = await fetch('https://ddragon.leagueoflegends.com/cdn/14.3.1/data/es_ES/champion.json');
+        const json = await response.json();
+        
+        // Transformamos el JSON de Riot al formato que usa tu código
+        champions = Object.values(json.data).map(champ => ({
+            name: champ.name,
+            id: champ.id
+        })).sort((a, b) => a.name.localeCompare(b.name));
+        
+    } catch (error) {
+        console.error("Error cargando los campeones:", error);
+    }
+}
+
+// Llamamos a la función nada más arrancar la página
+fetchAllChampions();
 
         // Variables de estado global
         let activeRole = null;
