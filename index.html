@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoL Champion Pool Builder - Diego González luis</title>
+    <!-- Google Fonts: Beaufont style & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dist-pool.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #060b13;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(13, 33, 58, 0.4) 0%, transparent 70%),
+                radial-gradient(circle at 0% 100%, rgba(10, 20, 38, 0.6) 0%, transparent 50%);
+            color: #f0f4f9;
+            overflow-x: hidden;
+        }
+
+        .font-lol-title {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.15em;
+        }
+
+        /* Variables de color de roles para bordes y brillos */
+        .theme-top {
+            --color-primary: #c29c47; /* Dorado */
+            --color-primary-rgb: 194, 156, 71;
+            --color-glow: rgba(194, 156, 71, 0.35);
+        }
+        .theme-jgl {
+            --color-primary: #1ebd62; /* Verde Jgl */
+            --color-primary-rgb: 30, 189, 98;
+            --color-glow: rgba(30, 189, 98, 0.35);
+        }
+        .theme-mid {
+            --color-primary: #288df2; /* Azul Mid */
+            --color-primary-rgb: 40, 141, 242;
+            --color-glow: rgba(40, 141, 242, 0.35);
+        }
+        .theme-adc {
+            --color-primary: #e6263a; /* Rojo ADC */
+            --color-primary-rgb: 230, 38, 58;
+            --color-glow: rgba(230, 38, 58, 0.35);
+        }
+        .theme-supp {
+            --color-primary: #00cfc8; /* Celeste/Turquesa SUPP */
+            --color-primary-rgb: 0, 207, 200;
+            --color-glow: rgba(0, 207, 200, 0.35);
+        }
+
+        /* Estilo general de rol */
+        .role-section {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 20, 38, 0.45);
+            backdrop-filter: blur(8px);
+            transition: all 0.4s ease;
+        }
+
+        /* Hexágonos rúnicos inspirados en tu diseño */
+        .hex-outer {
+            width: 140px;
+            height: 160px;
+            position: relative;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: linear-gradient(180deg, var(--color-primary) 0%, rgba(10, 20, 35, 0.95) 40%, rgba(5, 10, 20, 1) 100%);
+            padding: 2px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--color-glow);
+        }
+
+        .hex-outer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border: 2px solid var(--color-primary);
+            pointer-events: none;
+            opacity: 0.85;
+            box-shadow: inset 0 0 10px rgba(var(--color-primary-rgb), 0.5);
+        }
+
+        .hex-outer:hover {
+            transform: translateY(-5px) scale(1.04);
+            filter: drop-shadow(0 0 12px var(--color-primary));
+        }
+
+        .hex-inner {
+            width: 100%;
+            height: 100%;
+            background-color: #0c121e;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hex-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            transition: transform 0.3s ease;
+        }
+
+        .hex-outer:hover .hex-image {
+            transform: scale(1.1);
+        }
+
+        .hex-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .hex-placeholder i {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            opacity: 0.7;
+            margin-bottom: 8px;
+            text-shadow: 0 0 8px var(--color-primary);
+        }
+
+        .hex-crown-badge {
+            position: absolute;
+            bottom: 12px;
+            background: rgba(10, 20, 38, 0.85);
+            border: 1px solid var(--color-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.55rem;
+            color: var(--color-primary);
+            font-weight: 800;
+            text-shadow: 0 0 5px var(--color-primary);
+        }
+
+        /* Mini botones selectores para los posibles picks / counters */
+        .counter-btn {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 9999px;
+            background-color: #0c121e;
+            border: 1px solid rgba(var(--color-primary-rgb), 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: all 0.22s ease;
+            cursor: pointer;
+        }
+
+        .counter-btn:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 8px var(--color-primary);
+            transform: scale(1.1);
+        }
+
+        .counter-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Entrada editable para que puedan tocar lo que quieran */
+        .editable-text {
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+
+        .editable-text:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .editable-text:focus {
+            border-color: var(--color-primary) !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            outline: none;
+            cursor: text;
+        }
+
+        /* Runas decorativas horizontales */
+        .runic-divider {
+            position: relative;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+            opacity: 0.6;
+            margin: 1rem 0;
+        }
+
+        .runic-divider::after {
+            content: "᚛ ᚛ ᛖ ᛚ ᛁ ᛏ ᛖ ᚜ ᚜";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0a1426;
+            padding: 0 15px;
+            font-family: serif;
+            font-size: 0.7rem;
+            color: var(--color-primary);
+            letter-spacing: 4px;
+            opacity: 0.8;
+        }
+
+        /* Buscador flotante */
+        #champion-search-modal {
+            backdrop-filter: blur(12px);
+            background: rgba(2, 6, 12, 0.85);
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: #c29c47;
+        }
+
+        /* Decoración de runas en las esquinas */
+        .border-runes {
+            font-family: monospace;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 6px;
+        }
+        #champions-list > div {
+    content-visibility: auto;
+    contain-intrinsic-size: 80px 100px; /* Dale una estimación del tamaño de cada tarjeta de campeón (ancho x alto) */
+}
+#champions-list > div,
+#champions-list > div:hover,
+#champions-list > div img,
+#champions-list > div:hover img {
+    transform: none !important;
+    transition: none !important;
+    filter: none !important;
+}
+
+/* Pon un hover súper ligero: solo cambia un poco el fondo al pasar el ratón */
+#champions-list > div:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    cursor: pointer;
+}
+.champ-hidden {
+    display: none !important;
+}
+    </style>
+</head>
+<body class="p-3 md:p-8 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Principal -->
+    <header class="max-w-7xl mx-auto w-full mb-14 text-center relative">
+        <div class="flex flex-col md:flex-row md:justify-between items-center border-b border-yellow-600/20 pb-8 gap-4">
+            <div class="text-left">
+                <p class="text-xs uppercase tracking-widest text-yellow-500 font-semibold mb-1">CHAMPION POOL TEMPORADA 2026</p><br>
+                <h1 class="text-3xl md:text-5xl font-lol-title text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-400 to-amber-600 font-black">
+                    MI SELECCIÓN DE CAMPEONES 
+                </h1><br>
+                <p class="text-gray-400 text-sm mt-1 flex items-center gap-2 flex-wrap">
+                    Invocador: 
+                    <span class="editable-text text-yellow-400 font-bold animate-pulse" contenteditable="true" id="summoner-name">TuNombreInvocador#EUW</span>
+                    <a href="#" onclick="redirectToDeepLOL(event)" class="text-[10px] bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2.5 py-1 rounded transition flex items-center gap-1 font-semibold hover:border-yellow-500/50">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> VER PERFIL DEEPLOL
+                    </a>
+                </p>
+            </div>
+            
+            <!-- Controles y Acciones -->
+            <div class="flex gap-2 flex-wrap justify-center">
+    
+    <a href="generador_random_desde_pool.html" class="bg-slate-900 border border-purple-500/40 text-purple-400 text-xs font-bold py-2 px-4 rounded hover:bg-purple-500/10 transition flex items-center gap-2">
+        <i class="fa-solid fa-dice"></i> IR AL RANDOMIZADOR
+    </a>
+
+    <button onclick="exportLayout()" class="bg-slate-900 border border-yellow-500/40 text-yellow-400 text-xs font-bold py-2 px-4 rounded hover:bg-yellow-500/10 transition flex items-center gap-2">
+        <i class="fa-solid fa-download"></i> EXPORTAR POOL
+    </button>
+
+    <button onclick="triggerImport()" class="bg-slate-900 border border-slate-700 text-gray-300 text-xs font-bold py-2 px-4 rounded hover:bg-slate-800 transition flex items-center gap-2">
+        <i class="fa-solid fa-upload"></i> IMPORTAR
+    </button>
+    <input type="file" id="import-file" class="hidden" accept=".json" onchange="importLayout(event)">
+    
+    <button onclick="resetPool()" class="bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-bold py-2 px-4 rounded hover:bg-red-900/30 transition flex items-center gap-2">
+        <i class="fa-solid fa-trash-can"></i> REINICIAR
+    </button>
+</div>
+        </div>
+
+        <!-- Filtro rápido de Roles -->
+        <div class="flex justify-center gap-2 md:gap-4 mt-6 flex-wrap">
+            <button onclick="filterRole('all')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/20 transition-all tab-filter" data-role="all">
+                <i class="fa-solid fa-globe mr-1.5"></i> Todos los Roles
+            </button>
+            <button onclick="filterRole('top')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900 text-gray-400 hover:text-[#c29c47] transition-all tab-filter" data-role="top">
+                <i class="fa-solid fa-shield-halved mr-1.5"></i> TOP
+            </button>
+            <button onclick="filterRole('jgl')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900 text-gray-400 hover:text-[#1ebd62] transition-all tab-filter" data-role="jgl">
+                <i class="fa-solid fa-tree mr-1.5"></i> JGL
+            </button>
+            <button onclick="filterRole('mid')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900 text-gray-400 hover:text-[#288df2] transition-all tab-filter" data-role="mid">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> MID
+            </button>
+            <button onclick="filterRole('adc')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900 text-gray-400 hover:text-[#e6263a] transition-all tab-filter" data-role="adc">
+                <i class="fa-solid fa-crosshairs mr-1.5"></i> ADC
+            </button>
+            <button onclick="filterRole('supp')" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900 text-gray-400 hover:text-[#00cfc8] transition-all tab-filter" data-role="supp">
+                <i class="fa-solid fa-hand-holding-hand mr-1.5"></i> SUPP
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal: Los 5 Roles -->
+    <main class="max-w-7xl mx-auto w-full flex-grow space-y-12 mb-12" id="roles-container">
+
+        <!-- 1. ROL: TOP (Tema Dorado Hextech) -->
+        <section id="role-top" class="role-section theme-top rounded-xl p-6 md:p-8 relative overflow-hidden" data-role-type="top">
+            <div class="absolute top-0 right-0 p-3 opacity-5 select-none text-9xl font-bold font-lol-title">TOP</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <!-- Información de Rol -->
+                <div class="lg:col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-[#c29c47]/15 flex items-center justify-center border border-[#c29c47]/40 text-[#c29c47] text-xl">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h2 class="text-3xl font-lol-title font-bold text-white tracking-wider flex items-center gap-2">
+                            ROL: <span class="text-[#c29c47]">TOP</span>
+                        </h2>
+                        <button onclick="randomizeRole('top')" class="text-[10px] ml-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-1 rounded transition hover:border-yellow-500/50 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-shuffle text-[9px]"></i> RANDOM
+                        </button>
+                    </div>
+                    <p class="text-xl italic font-serif text-gray-300 mb-4 editable-text" contenteditable="true">La Línea del Duelo</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6 editable-text" contenteditable="true">
+                        El guerrero solitario de la Grieta. Aguanta la línea, domina los duelos 1v1 y presiona el splitpush en late game. Bruisers, tanques y duelistas — la línea del duelo recompensa al más resistente.
+                    </p>
+                    <div class="flex gap-2 flex-wrap mb-6">
+                        <span class="text-[10px] bg-slate-900/80 border border-yellow-600/20 px-3 py-1 rounded-full font-bold text-[#c29c47]">BRUISER</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-yellow-600/20 px-3 py-1 rounded-full font-bold text-[#c29c47]">DUELISTA</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-yellow-600/20 px-3 py-1 rounded-full font-bold text-[#c29c47]">SPLITPUSH</span>
+                    </div>
+
+                    <!-- Meta / Recomendados -->
+                    <div class="bg-black/40 border border-yellow-500/10 rounded-lg p-4">
+                        <p class="text-xs font-bold text-[#c29c47] uppercase tracking-wider mb-3">POSIBLES PICKS / COUNTERS</p>
+                        <ul class="space-y-3 text-xs text-gray-300">
+                            <!-- Fila 0 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('top', 0, 'counter')" class="counter-btn" id="counter-btn-top-0">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#c29c47] transition shrink-0" onclick="openSearchModal('top', 0, 'counter')" id="counter-name-top-0">Aatrox</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-top-0">— Sustain y burst</span>
+                                </div>
+                            </li>
+                            <!-- Fila 1 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('top', 1, 'counter')" class="counter-btn" id="counter-btn-top-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#c29c47] transition shrink-0" onclick="openSearchModal('top', 1, 'counter')" id="counter-name-top-1">Camille</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-top-1">— Duelista con movilidad</span>
+                                </div>
+                            </li>
+                            <!-- Fila 2 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('top', 2, 'counter')" class="counter-btn" id="counter-btn-top-2">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#c29c47] transition shrink-0" onclick="openSearchModal('top', 2, 'counter')" id="counter-name-top-2">Darius</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-top-2">— Dominio de línea</span>
+                                </div>
+                            </li>
+                            <!-- Fila 3 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('top', 3, 'counter')" class="counter-btn" id="counter-btn-top-3">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#c29c47] transition shrink-0" onclick="openSearchModal('top', 3, 'counter')" id="counter-name-top-3">Shen</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-top-3">— Tanque global</span>
+                                </div>
+                            </li>
+                            <!-- Fila 4 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('top', 4, 'counter')" class="counter-btn" id="counter-btn-top-4">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#c29c47] transition shrink-0" onclick="openSearchModal('top', 4, 'counter')" id="counter-name-top-4">Garen</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-top-4">— Sencillo y poderoso</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Champion Pool Hexágonos -->
+                <div class="lg:col-span-8 flex flex-col justify-center items-center">
+                    <h3 class="text-xs uppercase tracking-widest text-[#c29c47] font-semibold mb-6">TU SELECCIÓN PERSONAL</h3>
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-8 max-w-xl">
+                        <!-- Hexágono 1 -->
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('top', 0)">
+                                <div class="hex-inner" id="hex-top-0">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-top-0">Tu Campeón</span>
+                        </div>
+                        <!-- Hexágono 2 -->
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('top', 1)">
+                                <div class="hex-inner" id="hex-top-1">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-top-1">Tu Campeón</span>
+                        </div>
+                        <!-- Hexágono 3 -->
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('top', 2)">
+                                <div class="hex-inner" id="hex-top-2">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-top-2">Tu Campeón</span>
+                        </div>
+                        <!-- Hexágono 4 (Fila 2) -->
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('top', 3)">
+                                <div class="hex-inner" id="hex-top-3">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-top-3">Tu Campeón</span>
+                        </div>
+                        <!-- Hexágono 5 -->
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('top', 4)">
+                                <div class="hex-inner" id="hex-top-4">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-top-4">Tu Campeón</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="runic-divider"></div>
+        </section>
+
+        <!-- 2. ROL: JUNGLA (Tema Verde Selva Rúnico) -->
+        <section id="role-jgl" class="role-section theme-jgl rounded-xl p-6 md:p-8 relative overflow-hidden" data-role-type="jgl">
+            <div class="absolute top-0 right-0 p-3 opacity-5 select-none text-9xl font-bold font-lol-title">JGL</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <!-- Información de Rol -->
+                <div class="lg:col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-[#1ebd62]/15 flex items-center justify-center border border-[#1ebd62]/40 text-[#1ebd62] text-xl">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <h2 class="text-3xl font-lol-title font-bold text-white tracking-wider flex items-center gap-2">
+                            ROL: <span class="text-[#1ebd62]">JUNGLE</span>
+                        </h2>
+                        <button onclick="randomizeRole('jgl')" class="text-[10px] ml-2 bg-green-500/10 hover:bg-green-500/20 text-[#1ebd62] border border-green-500/30 px-2 py-1 rounded transition hover:border-green-500/50 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-shuffle text-[9px]"></i> RANDOM
+                        </button>
+                    </div>
+                    <p class="text-xl italic font-serif text-gray-300 mb-4 editable-text" contenteditable="true">El Motor del Equipo</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6 editable-text" contenteditable="true">
+                        Controla las sombras y la niebla de guerra. Asegura los objetivos de la Grieta (Dragones, Larvas y Barón), asiste a las líneas en apuros y define el ritmo del juego con gankeos letales.
+                    </p>
+                    <div class="flex gap-2 flex-wrap mb-6">
+                        <span class="text-[10px] bg-slate-900/80 border border-green-600/20 px-3 py-1 rounded-full font-bold text-[#1ebd62]">ASESINO</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-green-600/20 px-3 py-1 rounded-full font-bold text-[#1ebd62]">GANKER</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-green-600/20 px-3 py-1 rounded-full font-bold text-[#1ebd62]">POWER FARM</span>
+                    </div>
+
+                    <!-- Meta / Recomendados -->
+                    <div class="bg-black/40 border border-green-500/10 rounded-lg p-4">
+                        <p class="text-xs font-bold text-[#1ebd62] uppercase tracking-wider mb-3">POSIBLES PICKS / COUNTERS</p>
+                        <ul class="space-y-3 text-xs text-gray-300">
+                            <!-- Fila 0 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('jgl', 0, 'counter')" class="counter-btn" id="counter-btn-jgl-0">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#1ebd62] transition shrink-0" onclick="openSearchModal('jgl', 0, 'counter')" id="counter-name-jgl-0">Viego</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-jgl-0">— Snowball y reset</span>
+                                </div>
+                            </li>
+                            <!-- Fila 1 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('jgl', 1, 'counter')" class="counter-btn" id="counter-btn-jgl-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#1ebd62] transition shrink-0" onclick="openSearchModal('jgl', 1, 'counter')" id="counter-name-jgl-1">Lee Sin</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-jgl-1">— Alta movilidad y playmaker</span>
+                                </div>
+                            </li>
+                            <!-- Fila 2 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('jgl', 2, 'counter')" class="counter-btn" id="counter-btn-jgl-2">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#1ebd62] transition shrink-0" onclick="openSearchModal('jgl', 2, 'counter')" id="counter-name-jgl-2">Maokai</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-jgl-2">— Control de zona y tanicidad</span>
+                                </div>
+                            </li>
+                            <!-- Fila 3 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('jgl', 3, 'counter')" class="counter-btn" id="counter-btn-jgl-3">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#1ebd62] transition shrink-0" onclick="openSearchModal('jgl', 3, 'counter')" id="counter-name-jgl-3">Graves</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-jgl-3">— Escala y daño a distancia</span>
+                                </div>
+                            </li>
+                            <!-- Fila 4 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('jgl', 4, 'counter')" class="counter-btn" id="counter-btn-jgl-4">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#1ebd62] transition shrink-0" onclick="openSearchModal('jgl', 4, 'counter')" id="counter-name-jgl-4">Nocturne</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-jgl-4">— Presión global con R</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Champion Pool Hexágonos -->
+                <div class="lg:col-span-8 flex flex-col justify-center items-center">
+                    <h3 class="text-xs uppercase tracking-widest text-[#1ebd62] font-semibold mb-6">TU SELECCIÓN PERSONAL</h3>
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-8 max-w-xl">
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('jgl', 0)">
+                                <div class="hex-inner" id="hex-jgl-0">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-jgl-0">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('jgl', 1)">
+                                <div class="hex-inner" id="hex-jgl-1">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-jgl-1">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('jgl', 2)">
+                                <div class="hex-inner" id="hex-jgl-2">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-jgl-2">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('jgl', 3)">
+                                <div class="hex-inner" id="hex-jgl-3">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-jgl-3">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('jgl', 4)">
+                                <div class="hex-inner" id="hex-jgl-4">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-jgl-4">Tu Campeón</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="runic-divider"></div>
+        </section>
+
+        <!-- 3. ROL: MID (Tema Azul Rúnico/Hielo - Como tu imagen) -->
+        <section id="role-mid" class="role-section theme-mid rounded-xl p-6 md:p-8 relative overflow-hidden" data-role-type="mid">
+            <div class="absolute top-0 right-0 p-3 opacity-5 select-none text-9xl font-bold font-lol-title">MID</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <!-- Información de Rol -->
+                <div class="lg:col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-[#288df2]/15 flex items-center justify-center border border-[#288df2]/40 text-[#288df2] text-xl">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h2 class="text-3xl font-lol-title font-bold text-white tracking-wider flex items-center gap-2">
+                            ROL: <span class="text-[#288df2]">MID</span>
+                        </h2>
+                        <button onclick="randomizeRole('mid')" class="text-[10px] ml-2 bg-blue-500/10 hover:bg-blue-500/20 text-[#288df2] border border-blue-500/30 px-2 py-1 rounded transition hover:border-blue-500/50 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-shuffle text-[9px]"></i> RANDOM
+                        </button>
+                    </div>
+                    <p class="text-xl italic font-serif text-gray-300 mb-4 editable-text" contenteditable="true">El Corazón del Mapa</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6 editable-text" contenteditable="true">
+                        El Mid laner controla el centro del mapa. Rota rápido, hace daño explosivo y controla peleas con hechizos devastadores. Magos, asesinos y controladores dominan esta línea.
+                    </p>
+                    <div class="flex gap-2 flex-wrap mb-6">
+                        <span class="text-[10px] bg-slate-900/80 border border-blue-600/20 px-3 py-1 rounded-full font-bold text-[#288df2]">MAGO CONTROL</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-blue-600/20 px-3 py-1 rounded-full font-bold text-[#288df2]">ASESINO</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-blue-600/20 px-3 py-1 rounded-full font-bold text-[#288df2]">BURST</span>
+                    </div>
+
+                    <!-- Meta / Recomendados -->
+                    <div class="bg-black/40 border border-blue-500/10 rounded-lg p-4">
+                        <p class="text-xs font-bold text-[#288df2] uppercase tracking-wider mb-3">POSIBLES PICKS / COUNTERS</p>
+                        <ul class="space-y-3 text-xs text-gray-300">
+                            <!-- Fila 0 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('mid', 0, 'counter')" class="counter-btn" id="counter-btn-mid-0">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#288df2] transition shrink-0" onclick="openSearchModal('mid', 0, 'counter')" id="counter-name-mid-0">Ahri</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-mid-0">— Movilidad y daño mágico</span>
+                                </div>
+                            </li>
+                            <!-- Fila 1 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('mid', 1, 'counter')" class="counter-btn" id="counter-btn-mid-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#288df2] transition shrink-0" onclick="openSearchModal('mid', 1, 'counter')" id="counter-name-mid-1">Zed</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-mid-1">— Asesino de burst</span>
+                                </div>
+                            </li>
+                            <!-- Fila 2 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('mid', 2, 'counter')" class="counter-btn" id="counter-btn-mid-2">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#288df2] transition shrink-0" onclick="openSearchModal('mid', 2, 'counter')" id="counter-name-mid-2">Orianna</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-mid-2">— Controladora de peleas</span>
+                                </div>
+                            </li>
+                            <!-- Fila 3 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('mid', 3, 'counter')" class="counter-btn" id="counter-btn-mid-3">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#288df2] transition shrink-0" onclick="openSearchModal('mid', 3, 'counter')" id="counter-name-mid-3">Lux</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-mid-3">— Poke y control</span>
+                                </div>
+                            </li>
+                            <!-- Fila 4 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('mid', 4, 'counter')" class="counter-btn" id="counter-btn-mid-4">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#288df2] transition shrink-0" onclick="openSearchModal('mid', 4, 'counter')" id="counter-name-mid-4">Karthus</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-mid-4">— Daño global con ulti</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Champion Pool Hexágonos -->
+                <div class="lg:col-span-8 flex flex-col justify-center items-center">
+                    <h3 class="text-xs uppercase tracking-widest text-[#288df2] font-semibold mb-6">TU SELECCIÓN PERSONAL</h3>
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-8 max-w-xl">
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('mid', 0)">
+                                <div class="hex-inner" id="hex-mid-0">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-mid-0">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('mid', 1)">
+                                <div class="hex-inner" id="hex-mid-1">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-mid-1">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('mid', 2)">
+                                <div class="hex-inner" id="hex-mid-2">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-mid-2">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('mid', 3)">
+                                <div class="hex-inner" id="hex-mid-3">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-mid-3">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('mid', 4)">
+                                <div class="hex-inner" id="hex-mid-4">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-mid-4">Tu Campeón</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="runic-divider"></div>
+        </section>
+
+        <!-- 4. ROL: ADC (Tema Rojo Carmesí/Furia) -->
+        <section id="role-adc" class="role-section theme-adc rounded-xl p-6 md:p-8 relative overflow-hidden" data-role-type="adc">
+            <div class="absolute top-0 right-0 p-3 opacity-5 select-none text-9xl font-bold font-lol-title">ADC</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <!-- Información de Rol -->
+                <div class="lg:col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-[#e6263a]/15 flex items-center justify-center border border-[#e6263a]/40 text-[#e6263a] text-xl">
+                            <i class="fa-solid fa-crosshairs"></i>
+                        </div>
+                        <h2 class="text-3xl font-lol-title font-bold text-white tracking-wider flex items-center gap-2">
+                            ROL: <span class="text-[#e6263a]">ADC</span>
+                        </h2>
+                        <button onclick="randomizeRole('adc')" class="text-[10px] ml-2 bg-red-500/10 hover:bg-red-500/20 text-[#e6263a] border border-red-500/30 px-2 py-1 rounded transition hover:border-red-500/50 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-shuffle text-[9px]"></i> RANDOM
+                        </button>
+                    </div>
+                    <p class="text-xl italic font-serif text-gray-300 mb-4 editable-text" contenteditable="true">El Daño Continuo</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6 editable-text" contenteditable="true">
+                        El tirador de larga distancia. Frágil pero letal en el juego tardío. Posicionamiento impecable, farmeo excelente y paciencia extrema son necesarios para derretir tanques y ganar las peleas de equipo.
+                    </p>
+                    <div class="flex gap-2 flex-wrap mb-6">
+                        <span class="text-[10px] bg-slate-900/80 border border-red-600/20 px-3 py-1 rounded-full font-bold text-[#e6263a]">HYPERCARRY</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-red-600/20 px-3 py-1 rounded-full font-bold text-[#e6263a]">POKE</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-red-600/20 px-3 py-1 rounded-full font-bold text-[#e6263a]">DPS</span>
+                    </div>
+
+                    <!-- Meta / Recomendados -->
+                    <div class="bg-black/40 border border-red-500/10 rounded-lg p-4">
+                        <p class="text-xs font-bold text-[#e6263a] uppercase tracking-wider mb-3">POSIBLES PICKS / COUNTERS</p>
+                        <ul class="space-y-3 text-xs text-gray-300">
+                            <!-- Fila 0 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('adc', 0, 'counter')" class="counter-btn" id="counter-btn-adc-0">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#e6263a] transition shrink-0" onclick="openSearchModal('adc', 0, 'counter')" id="counter-name-adc-0">Jinx</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-adc-0">— Pasiva y velocidad de ataque</span>
+                                </div>
+                            </li>
+                            <!-- Fila 1 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('adc', 1, 'counter')" class="counter-btn" id="counter-btn-adc-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#e6263a] transition shrink-0" onclick="openSearchModal('adc', 1, 'counter')" id="counter-name-adc-1">Kai'Sa</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-adc-1">— Adaptabilidad e iniciaciones</span>
+                                </div>
+                            </li>
+                            <!-- Fila 2 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('adc', 2, 'counter')" class="counter-btn" id="counter-btn-adc-2">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#e6263a] transition shrink-0" onclick="openSearchModal('adc', 2, 'counter')" id="counter-name-adc-2">Ezreal</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-adc-2">— Poke seguro a distancia</span>
+                                </div>
+                            </li>
+                            <!-- Fila 3 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('adc', 3, 'counter')" class="counter-btn" id="counter-btn-adc-3">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#e6263a] transition shrink-0" onclick="openSearchModal('adc', 3, 'counter')" id="counter-name-adc-3">Varus</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-adc-3">— Letalidad o velocidad</span>
+                                </div>
+                            </li>
+                            <!-- Fila 4 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('adc', 4, 'counter')" class="counter-btn" id="counter-btn-adc-4">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#e6263a] transition shrink-0" onclick="openSearchModal('adc', 4, 'counter')" id="counter-name-adc-4">Zeri</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-adc-4">— Altísima movilidad</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Champion Pool Hexágonos -->
+                <div class="lg:col-span-8 flex flex-col justify-center items-center">
+                    <h3 class="text-xs uppercase tracking-widest text-[#e6263a] font-semibold mb-6">TU SELECCIÓN PERSONAL</h3>
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-8 max-w-xl">
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('adc', 0)">
+                                <div class="hex-inner" id="hex-adc-0">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-adc-0">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('adc', 1)">
+                                <div class="hex-inner" id="hex-adc-1">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-adc-1">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('adc', 2)">
+                                <div class="hex-inner" id="hex-adc-2">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-adc-2">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('adc', 3)">
+                                <div class="hex-inner" id="hex-adc-3">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-adc-3">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('adc', 4)">
+                                <div class="hex-inner" id="hex-adc-4">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-adc-4">Tu Campeón</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="runic-divider"></div>
+        </section>
+
+        <!-- 5. ROL: SUPPORT (Tema Celeste/Turquesa Celestial) -->
+        <section id="role-supp" class="role-section theme-supp rounded-xl p-6 md:p-8 relative overflow-hidden" data-role-type="supp">
+            <div class="absolute top-0 right-0 p-3 opacity-5 select-none text-9xl font-bold font-lol-title">SUPP</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <!-- Información de Rol -->
+                <div class="lg:col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-[#00cfc8]/15 flex items-center justify-center border border-[#00cfc8]/40 text-[#00cfc8] text-xl">
+                            <i class="fa-solid fa-hand-holding-hand"></i>
+                        </div>
+                        <h2 class="text-3xl font-lol-title font-bold text-white tracking-wider flex items-center gap-2">
+                            ROL: <span class="text-[#00cfc8]">SUPPORT</span>
+                        </h2>
+                        <button onclick="randomizeRole('supp')" class="text-[10px] ml-2 bg-teal-500/10 hover:bg-teal-500/20 text-[#00cfc8] border border-teal-500/30 px-2 py-1 rounded transition hover:border-teal-500/50 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-shuffle text-[9px]"></i> RANDOM
+                        </button>
+                    </div>
+                    <p class="text-xl italic font-serif text-gray-300 mb-4 editable-text" contenteditable="true">La Estrategia Invisible</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6 editable-text" contenteditable="true">
+                        El cerebro de la línea inferior. Controla la visión del mapa completo, protege a su tirador con curaciones/escudos o inicia combates brutales para decantar la partida.
+                    </p>
+                    <div class="flex gap-2 flex-wrap mb-6">
+                        <span class="text-[10px] bg-slate-900/80 border border-teal-600/20 px-3 py-1 rounded-full font-bold text-[#00cfc8]">ENGAGE</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-teal-600/20 px-3 py-1 rounded-full font-bold text-[#00cfc8]">ENCHANTER</span>
+                        <span class="text-[10px] bg-slate-900/80 border border-teal-600/20 px-3 py-1 rounded-full font-bold text-[#00cfc8]">MAGE</span>
+                    </div>
+
+                    <!-- Meta / Recomendados -->
+                    <div class="bg-black/40 border border-teal-500/10 rounded-lg p-4">
+                        <p class="text-xs font-bold text-[#00cfc8] uppercase tracking-wider mb-3">POSIBLES PICKS / COUNTERS</p>
+                        <ul class="space-y-3 text-xs text-gray-300">
+                            <!-- Fila 0 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('supp', 0, 'counter')" class="counter-btn" id="counter-btn-supp-0">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#00cfc8] transition shrink-0" onclick="openSearchModal('supp', 0, 'counter')" id="counter-name-supp-0">Thresh</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-supp-0">— Utilidad y playmaking</span>
+                                </div>
+                            </li>
+                            <!-- Fila 1 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('supp', 1, 'counter')" class="counter-btn" id="counter-btn-supp-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#00cfc8] transition shrink-0" onclick="openSearchModal('supp', 1, 'counter')" id="counter-name-supp-1">Lulu</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-supp-1">— Gran protección</span>
+                                </div>
+                            </li>
+                            <!-- Fila 2 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('supp', 2, 'counter')" class="counter-btn" id="counter-btn-supp-2">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#00cfc8] transition shrink-0" onclick="openSearchModal('supp', 2, 'counter')" id="counter-name-supp-2">Rell</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-supp-2">— Iniciaciones explosivas</span>
+                                </div>
+                            </li>
+                            <!-- Fila 3 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('supp', 3, 'counter')" class="counter-btn" id="counter-btn-supp-3">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#00cfc8] transition shrink-0" onclick="openSearchModal('supp', 3, 'counter')" id="counter-name-supp-3">Janna</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-supp-3">— Gran disengage</span>
+                                </div>
+                            </li>
+                            <!-- Fila 4 -->
+                            <li class="flex items-center gap-3">
+                                <button onclick="openSearchModal('supp', 4, 'counter')" class="counter-btn" id="counter-btn-supp-4">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span class="font-bold text-white text-xs cursor-pointer hover:text-[#00cfc8] transition shrink-0" onclick="openSearchModal('supp', 4, 'counter')" id="counter-name-supp-4">Senna</span>
+                                    <span class="editable-text text-gray-400 text-xs italic outline-none flex-1 truncate" contenteditable="true" id="counter-note-supp-4">— Escala infinita</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Champion Pool Hexágonos -->
+                <div class="lg:col-span-8 flex flex-col justify-center items-center">
+                    <h3 class="text-xs uppercase tracking-widest text-[#00cfc8] font-semibold mb-6">TU SELECCIÓN PERSONAL</h3>
+                    <div class="flex flex-wrap justify-center gap-x-4 gap-y-8 max-w-xl">
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('supp', 0)">
+                                <div class="hex-inner" id="hex-supp-0">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-supp-0">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('supp', 1)">
+                                <div class="hex-inner" id="hex-supp-1">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-supp-1">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="hex-outer" onclick="openSearchModal('supp', 2)">
+                                <div class="hex-inner" id="hex-supp-2">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-supp-2">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('supp', 3)">
+                                <div class="hex-inner" id="hex-supp-3">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-supp-3">Tu Campeón</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-0 md:mt-4">
+                            <div class="hex-outer" onclick="openSearchModal('supp', 4)">
+                                <div class="hex-inner" id="hex-supp-4">
+                                    <div class="hex-placeholder">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Seleccionar</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mt-2 text-xs font-bold text-gray-300 editable-text max-w-[120px] text-center" contenteditable="true" id="name-supp-4">Tu Campeón</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="runic-divider"></div>
+        </section>
+
+    </main>
+
+    <!-- Modal buscador de campeones -->
+    <div id="champion-search-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden transition-all">
+        <div class="bg-slate-950 border-2 border-yellow-500/40 w-full max-w-lg rounded-xl overflow-hidden shadow-2xl shadow-yellow-500/5">
+            <div class="p-4 border-b border-yellow-500/20 bg-slate-900 flex justify-between items-center">
+                <h3 class="font-lol-title text-yellow-400 font-bold tracking-widest text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> SELECCIÓN DE CAMPEÓN
+                </h3>
+                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 bg-slate-950">
+                <div class="relative mb-4">
+                   <input type="text" id="champion-search-input" oninput="debouncedFilter()" placeholder="Escribe el nombre del campeón..." class="w-full bg-slate-900 border border-slate-700 rounded p-3 pl-10 text-white placeholder-gray-500 text-sm focus:border-yellow-500 focus:outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-500"></i>
+                </div>
+                
+                <!-- Lista de Campeones cargada de la API -->
+                <div id="champions-list" class="grid grid-cols-4 gap-3 max-h-[300px] overflow-y-auto scrollbar-custom pr-2">
+                    <!-- Dinámico -->
+                    <div class="text-center text-xs text-gray-500 py-8 col-span-4">
+                        <i class="fa-solid fa-spinner animate-spin text-xl text-yellow-500 mb-2"></i>
+                        <p>Cargando lista de campeones oficiales...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-slate-900 border-t border-slate-800 text-right flex justify-between items-center text-xs text-gray-500">
+                <span>Haz clic en un campeón para seleccionarlo</span>
+                <button onclick="removeChampionAtActive()" class="bg-red-950/40 border border-red-500/30 text-red-400 font-bold px-3 py-1.5 rounded hover:bg-red-900/40 transition">
+                    <i class="fa-solid fa-user-slash mr-1"></i> Quitar de ranura
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer decorativo -->
+    <footer class="max-w-7xl mx-auto w-full text-center text-xs text-gray-600 border-t border-slate-900 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            Desarrollado para los pedófilos de la grieta, Mautyo ( gymbro iron stucked ), Zairgetta84 ( panchito panchet, disponible en onlyfans succionachinitos@onlyfans.com ) y Kenmitaa ( depredador sexual en la grieta, emo en la vida real "onichan") 
+        </div>
+        <div class="border-runes select-none">
+            ᚛ ᛗᛁ ᚴᛟᛚᛖᚲᚲᛁᛟᚾ ᛞᛖ ᚲᚨᛗᛈᛖᛟᚾᛖᛋ ᚜
+        </div>
+    </footer>
+
+    <!-- Notificaciones flotantes rápidas -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-yellow-500 text-yellow-400 py-3 px-5 rounded-lg text-sm font-bold opacity-0 transition-all duration-300 pointer-events-none shadow-xl flex items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-check"></i> <span id="toast-text">¡Guardado con éxito!</span>
+    </div>
+
+    <script>
+        // Versión fija de ddragon de Riot Games para descargar campeones
+        const ddragonVersion = "14.4.1";
+        let championsData = {};
+        
+        // Estructura de selección activa (type puede ser 'hex' o 'counter')
+        let activeSelection = { type: 'hex', role: null, index: null };
+        
+        // Estructura de datos para guardar la pool del usuario (Hexágonos)
+        let userPool = {
+            top: [null, null, null, null, null],
+            jgl: [null, null, null, null, null],
+            mid: [null, null, null, null, null],
+            adc: [null, null, null, null, null],
+            supp: [null, null, null, null, null]
+        };
+
+        // Estructura de datos para posibles picks / counters interactivos
+        let userCounters = {
+            top: ["Aatrox", "Camille", "Darius", "Shen", "Garen"],
+            jgl: ["Viego", "LeeSin", "Maokai", "Graves", "Nocturne"],
+            mid: ["Ahri", "Zed", "Orianna", "Lux", "Karthus"],
+            adc: ["Jinx", "Kaisa", "Ezreal", "Varus", "Zeri"],
+            supp: ["Thresh", "Lulu", "Rell", "Janna", "Senna"]
+        };
+
+        // Redirección inteligente a deeplol.gg basada en el Riot ID ingresado
+        function redirectToDeepLOL(event) {
+            event.preventDefault();
+            const summonerText = document.getElementById('summoner-name').innerText.trim();
+            if (!summonerText) return;
+            
+            // Separar Nombre y Tag (Riot ID)
+            let name = summonerText;
+            let tag = "";
+            if (summonerText.includes('#')) {
+                const parts = summonerText.split('#');
+                name = parts[0].trim();
+                tag = parts[1] ? parts[1].trim() : "";
+            }
+            
+            // Detectar la región según el tag (por defecto 'euw')
+            let region = "euw";
+            const upperTag = tag.toUpperCase();
+            
+            if (upperTag.includes("EUW")) region = "euw";
+            else if (upperTag.includes("EUNE")) region = "eune";
+            else if (upperTag.includes("NA")) region = "na";
+            else if (upperTag.includes("LAS")) region = "las";
+            else if (upperTag.includes("LAN")) region = "lan";
+            else if (upperTag.includes("KR")) region = "kr";
+            else if (upperTag.includes("BR")) region = "br";
+            else if (upperTag.includes("JP")) region = "jp";
+            else if (upperTag.includes("TR")) region = "tr";
+            else if (upperTag.includes("OCE")) region = "oce";
+            else if (upperTag.includes("RU")) region = "ru";
+            
+            // Formatear url: name-tag
+            const encodedName = encodeURIComponent(name);
+            let queryPath = encodedName;
+            if (tag) {
+                queryPath = `${encodedName}-${encodeURIComponent(tag)}`;
+            }
+            
+            const targetUrl = `https://www.deeplol.gg/summoner/${region}/${queryPath}`;
+            window.open(targetUrl, '_blank');
+        }
+
+        // Al iniciar la aplicación
+        window.onload = async function() {
+            // Cargar datos de la API de campeones de Riot
+            try {
+                const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/es_ES/champion.json`);
+                const data = await response.json();
+                championsData = data.data;
+                renderChampionsInList();
+                
+                // Forzar actualización de etiquetas de nombres oficiales ya cargados
+                refreshOfficialNames();
+            } catch (error) {
+                console.error("Error cargando campeones de Riot:", error);
+                document.getElementById('champions-list').innerHTML = `
+                    <div class="col-span-4 text-center text-red-400 py-6">
+                        No se pudo cargar la lista de Riot Games. Revisa tu conexión.
+                    </div>
+                `;
+            }
+
+            // Cargar de localStorage si ya guardó algo
+            loadFromLocalStorage();
+            saveOnChanges();
+        };
+
+        // Renderiza los campeones en el modal de búsqueda
+        function renderChampionsInList() {
+            const listContainer = document.getElementById('champions-list');
+            listContainer.innerHTML = '';
+            
+            // Ordenar alfabéticamente
+            const sortedKeys = Object.keys(championsData).sort();
+            
+            sortedKeys.forEach(key => {
+                const champ = championsData[key];
+                const item = document.createElement('div');
+                item.className = "cursor-pointer group hover:scale-105 transition duration-150 flex flex-col items-center bg-slate-900 hover:bg-slate-800 p-2 rounded border border-slate-800 hover:border-yellow-500/50";
+                item.setAttribute('data-name', champ.name.toLowerCase());
+                item.onclick = () => selectChampion(champ.id);
+                
+                const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champ.image.full}`;
+                
+                item.innerHTML = `
+                    <img src="${imgUrl}" alt="${champ.name}" loading="lazy" class="w-12 h-12 rounded object-cover border border-slate-700 group-hover:border-yellow-500" onerror="this.src='https://via.placeholder.com/100?text=${champ.name}'">
+                    <span class="text-[10px] text-gray-400 group-hover:text-yellow-400 mt-1 block truncate w-full text-center font-semibold">${champ.name}</span>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        
+        function openSearchModal(role, index, type = 'hex') {
+    activeSelection.role = role;
+    activeSelection.index = index;
+    activeSelection.type = type;
+    document.getElementById('champion-search-input').value = '';
+    filterChampions(); // Resetea filtros
+    
+    const modal = document.getElementById('champion-search-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => { modal.style.opacity = '1'; }, 10);
+
+
+    const championImages = document.querySelectorAll('#champions-list img');
+    championImages.forEach(img => {
+        if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+        }
+    });
+}
+
+        // Cerrar Modal
+        function closeSearchModal() {
+            const modal = document.getElementById('champion-search-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+
+        // Filtrar campeones al escribir en el buscador
+        function filterChampions() {
+    const query = document.getElementById('champion-search-input').value.toLowerCase();
+    const items = document.querySelectorAll('#champions-list > div');
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name').toLowerCase();
+        if (name.includes(query)) {
+            item.classList.remove('champ-hidden'); // Mucho más rápido que modificar .style directamente
+        } else {
+            item.classList.add('champ-hidden');
+        }
+    });
+}
+
+        // Seleccionar Campeón e Insertar en la Pool o en Picks/Counters
+        function selectChampion(championId) {
+            if (!activeSelection.role || activeSelection.index === null) return;
+            
+            const role = activeSelection.role;
+            const index = activeSelection.index;
+            const type = activeSelection.type || 'hex';
+            
+            if (type === 'hex') {
+                userPool[role][index] = championId;
+                updateHexagonUI(role, index, championId);
+                
+                // Auto-actualiza el nombre debajo del marco con el del campeón oficial seleccionado
+                const labelEl = document.getElementById(`name-${role}-${index}`);
+                if (labelEl && championsData[championId]) {
+                    labelEl.innerText = championsData[championId].name;
+                }
+            } else if (type === 'counter') {
+                userCounters[role][index] = championId;
+                updateCounterUI(role, index, championId);
+            }
+            
+            closeSearchModal();
+            showToast(`¡Campeón añadido a ${role.toUpperCase()} con éxito!`);
+            saveToLocalStorage();
+        }
+
+        // Quitar campeón seleccionado de una ranura activa
+        function removeChampionAtActive() {
+            if (!activeSelection.role || activeSelection.index === null) return;
+            const role = activeSelection.role;
+            const index = activeSelection.index;
+            const type = activeSelection.type || 'hex';
+            
+            if (type === 'hex') {
+                userPool[role][index] = null;
+                updateHexagonUI(role, index, null);
+
+                // Resetea el nombre por defecto a "Tu Campeón"
+                const labelEl = document.getElementById(`name-${role}-${index}`);
+                if (labelEl) {
+                    labelEl.innerText = "Tu Campeón";
+                }
+            } else if (type === 'counter') {
+                userCounters[role][index] = null;
+                updateCounterUI(role, index, null);
+            }
+
+            closeSearchModal();
+            showToast(`Se ha deseleccionado el campeón.`);
+            saveToLocalStorage();
+        }
+
+        // Actualizar visualmente la celda hexagonal del rol correspondiente
+        function updateHexagonUI(role, index, championId) {
+            const hexInner = document.getElementById(`hex-${role}-${index}`);
+            if (!hexInner) return;
+            
+            if (championId) {
+                const splashUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${championId}_0.jpg`;
+                const isMainBadge = index === 0 ? `<div class="hex-crown-badge"><i class="fa-solid fa-crown mr-0.5"></i> MAIN</div>` : '';
+                
+                hexInner.innerHTML = `
+                    <img src="${splashUrl}" alt="${championId}" class="hex-image" onerror="this.src='https://via.placeholder.com/150x200?text=${championId}'">
+                    ${isMainBadge}
+                `;
+            } else {
+                hexInner.innerHTML = `
+                    <div class="hex-placeholder">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Seleccionar</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Actualizar visualmente el mini-botón e icono de Pick / Counter
+        function updateCounterUI(role, index, championId) {
+            const btn = document.getElementById(`counter-btn-${role}-${index}`);
+            const label = document.getElementById(`counter-name-${role}-${index}`);
+            if (!btn || !label) return;
+
+            if (championId) {
+                const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${championId}.png`;
+                btn.innerHTML = `<img src="${iconUrl}" alt="${championId}" class="counter-img" onerror="this.src='https://via.placeholder.com/40?text=${championId.substring(0,2)}'">`;
+                
+                if (championsData[championId]) {
+                    label.innerText = championsData[championId].name;
+                } else {
+                    label.innerText = championId;
+                }
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-plus text-[10px]"></i>`;
+                label.innerText = "Seleccionar";
+            }
+        }
+
+        // Auto-actualiza los textos con los nombres localizados en español de Riot
+        function refreshOfficialNames() {
+            for (const role in userPool) {
+                userPool[role].forEach((champId, index) => {
+                    if (champId && championsData[champId]) {
+                        const labelEl = document.getElementById(`name-${role}-${index}`);
+                        if (labelEl && labelEl.innerText === "Tu Campeón") {
+                            labelEl.innerText = championsData[champId].name;
+                        }
+                    }
+                });
+                userCounters[role].forEach((champId, index) => {
+                    if (champId && championsData[champId]) {
+                        const labelEl = document.getElementById(`counter-name-${role}-${index}`);
+                        if (labelEl) {
+                            labelEl.innerText = championsData[champId].name;
+                        }
+                    }
+                });
+            }
+        }
+
+        // Guardar automáticamente todos los datos del usuario en LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('lol_champion_pool_data', JSON.stringify(userPool));
+            localStorage.setItem('lol_champion_pool_counters', JSON.stringify(userCounters));
+            
+            const summonerName = document.getElementById('summoner-name').innerText;
+            localStorage.setItem('lol_champion_pool_summoner', summonerName);
+            
+            // Guardar textos editables dinámicos de metas, descripciones y notas
+            const allEditables = {};
+            document.querySelectorAll('.editable-text').forEach(el => {
+                if (el.id) {
+                    allEditables[el.id] = el.innerText;
+                }
+            });
+            localStorage.setItem('lol_champion_pool_texts', JSON.stringify(allEditables));
+        }
+
+        // Detectar cambios en campos editables y guardar automáticamente
+        function saveOnChanges() {
+            document.querySelectorAll('.editable-text').forEach(el => {
+                el.addEventListener('blur', () => {
+                    saveToLocalStorage();
+                });
+            });
+        }
+
+        // Cargar datos guardados del navegador
+        function loadFromLocalStorage() {
+            const storedPool = localStorage.getItem('lol_champion_pool_data');
+            if (storedPool) {
+                userPool = JSON.parse(storedPool);
+                for (const role in userPool) {
+                    userPool[role].forEach((champId, index) => {
+                        updateHexagonUI(role, index, champId);
+                    });
+                }
+            }
+            
+            const storedCounters = localStorage.getItem('lol_champion_pool_counters');
+            if (storedCounters) {
+                userCounters = JSON.parse(storedCounters);
+                for (const role in userCounters) {
+                    userCounters[role].forEach((champId, index) => {
+                        updateCounterUI(role, index, champId);
+                    });
+                }
+            }
+            
+            const storedSummoner = localStorage.getItem('lol_champion_pool_summoner');
+            if (storedSummoner) {
+                document.getElementById('summoner-name').innerText = storedSummoner;
+            }
+            
+            const storedTexts = localStorage.getItem('lol_champion_pool_texts');
+            if (storedTexts) {
+                const textObj = JSON.parse(storedTexts);
+                for (const id in textObj) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.innerText = textObj[id];
+                    }
+                }
+            }
+        }
+
+        // Filtrar y ver solo un rol determinado en el panel con sus respectivos colores
+        function filterRole(role) {
+            const colors = {
+                all: { active: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30', inactive: 'bg-slate-900 text-gray-400 hover:text-yellow-400 border border-transparent' },
+                top: { active: 'bg-[#c29c47]/15 text-[#c29c47] border border-[#c29c47]/40', inactive: 'bg-slate-900 text-gray-400 hover:text-[#c29c47] border border-transparent' },
+                jgl: { active: 'bg-[#1ebd62]/15 text-[#1ebd62] border border-[#1ebd62]/40', inactive: 'bg-slate-900 text-gray-400 hover:text-[#1ebd62] border border-transparent' },
+                mid: { active: 'bg-[#288df2]/15 text-[#288df2] border border-[#288df2]/40', inactive: 'bg-slate-900 text-gray-400 hover:text-[#288df2] border border-transparent' },
+                adc: { active: 'bg-[#e6263a]/15 text-[#e6263a] border border-[#e6263a]/40', inactive: 'bg-slate-900 text-gray-400 hover:text-[#e6263a] border border-transparent' },
+                supp: { active: 'bg-[#00cfc8]/15 text-[#00cfc8] border border-[#00cfc8]/40', inactive: 'bg-slate-900 text-gray-400 hover:text-[#00cfc8] border border-transparent' }
+            };
+
+            document.querySelectorAll('.tab-filter').forEach(btn => {
+                const btnRole = btn.getAttribute('data-role');
+                if (btnRole === role) {
+                    btn.className = `px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest ${colors[btnRole].active} transition-all tab-filter`;
+                } else {
+                    btn.className = `px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest ${colors[btnRole].inactive} transition-all tab-filter`;
+                }
+            });
+
+            const sections = document.querySelectorAll('.role-section');
+            sections.forEach(sec => {
+                if (role === 'all' || sec.getAttribute('data-role-type') === role) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        }
+
+        // Notificación Toast de confirmación
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = text;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(0)';
+            }, 3000);
+        }
+
+        // Reiniciar toda la Champion Pool completa
+        function resetPool() {
+            if (confirm("¿Estás seguro de que quieres limpiar toda tu Champion Pool (incluyendo picks y counters)?")) {
+                userPool = {
+                    top: [null, null, null, null, null],
+                    jgl: [null, null, null, null, null],
+                    mid: [null, null, null, null, null],
+                    adc: [null, null, null, null, null],
+                    supp: [null, null, null, null, null]
+                };
+
+                userCounters = {
+                    top: [null, null, null, null, null],
+                    jgl: [null, null, null, null, null],
+                    mid: [null, null, null, null, null],
+                    adc: [null, null, null, null, null],
+                    supp: [null, null, null, null, null]
+                };
+                
+                for (const role in userPool) {
+                    userPool[role].forEach((champId, index) => {
+                        updateHexagonUI(role, index, null);
+                        const labelEl = document.getElementById(`name-${role}-${index}`);
+                        if (labelEl) {
+                            labelEl.innerText = "Tu Campeón";
+                        }
+                    });
+                    userCounters[role].forEach((champId, index) => {
+                        updateCounterUI(role, index, null);
+                    });
+                }
+                
+                localStorage.removeItem('lol_champion_pool_data');
+                localStorage.removeItem('lol_champion_pool_counters');
+                saveToLocalStorage();
+                showToast("Se ha reiniciado tu Champion Pool");
+            }
+        }
+
+        // Aleatorizar los 5 campeones de un rol específico
+        function randomizeRole(role) {
+            const allChampionIds = Object.keys(championsData);
+            // Mezclar aleatoriamente el array de IDs
+            const shuffled = [...allChampionIds].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 5);
+
+            userPool[role] = selected;
+            // Actualizar interfaz
+            selected.forEach((champId, index) => {
+                updateHexagonUI(role, index, champId);
+                const labelEl = document.getElementById(`name-${role}-${index}`);
+                if (labelEl && championsData[champId]) {
+                    labelEl.innerText = championsData[champId].name;
+                }
+            });
+            saveToLocalStorage();
+            showToast(`¡Rol de ${role.toUpperCase()} aleatorizado!`);
+        }
+
+        // Exportar a un archivo JSON para compartir con amigos
+        function exportLayout() {
+            const customTexts = {};
+            document.querySelectorAll('.editable-text').forEach(el => {
+                if (el.id) {
+                    customTexts[el.id] = el.innerText;
+                }
+            });
+
+            const dataToExport = {
+                userPool: userPool,
+                userCounters: userCounters,
+                summoner: document.getElementById('summoner-name').innerText,
+                texts: customTexts
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href",     dataStr);
+            downloadAnchor.setAttribute("download", `Champion_Pool_${document.getElementById('summoner-name').innerText.split('#')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Exportado archivo .json con éxito");
+        }
+
+        // Disparador de la importación
+        function triggerImport() {
+            document.getElementById('import-file').click();
+        }
+
+        // Cargar archivo JSON para restaurar pool completa
+        function importLayout(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.userPool) {
+                        userPool = parsed.userPool;
+                        for (const role in userPool) {
+                            userPool[role].forEach((champId, index) => {
+                                updateHexagonUI(role, index, champId);
+                            });
+                        }
+                    }
+                    if (parsed.userCounters) {
+                        userCounters = parsed.userCounters;
+                        for (const role in userCounters) {
+                            userCounters[role].forEach((champId, index) => {
+                                updateCounterUI(role, index, champId);
+                            });
+                        }
+                    }
+                    if (parsed.summoner) {
+                        document.getElementById('summoner-name').innerText = parsed.summoner;
+                    }
+                    if (parsed.texts) {
+                        for (const id in parsed.texts) {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.innerText = parsed.texts[id];
+                            }
+                        }
+                    }
+                    saveToLocalStorage();
+                    showToast("¡Champion Pool importada con éxito!");
+                } catch (err) {
+                    alert("Archivo no válido para importar tu champion pool.");
+                }
+            };
+            reader.readAsText(file);
+        }
+        let searchTimeout;
+
+function debouncedFilter() {
+    clearTimeout(searchTimeout);
+    // Espera 150ms antes de ejecutar el filtro en el DOM
+    searchTimeout = setTimeout(filterChampions, 150);
+}
+    </script>
+</body>
+</html>
