@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoL Champion Pool Builder</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Beaufont style & Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -249,6 +247,13 @@
             color: rgba(255, 255, 255, 0.15);
             letter-spacing: 6px;
         }
+        #champions-list > div {
+    content-visibility: auto;
+    contain-intrinsic-size: 80px 100px; /* Dale una estimación del tamaño de cada tarjeta de campeón (ancho x alto) */
+}
+.champ-hidden {
+    display: none !important;
+}
     </style>
 </head>
 <body class="p-3 md:p-8 min-h-screen flex flex-col justify-between">
@@ -1089,7 +1094,7 @@
             
             <div class="p-4 bg-slate-950">
                 <div class="relative mb-4">
-                    <input type="text" id="champion-search-input" onkeyup="filterChampions()" placeholder="Escribe el nombre del campeón..." class="w-full bg-slate-900 border border-slate-700 rounded p-3 pl-10 text-white placeholder-gray-500 text-sm focus:border-yellow-500 focus:outline-none">
+                   <input type="text" id="champion-search-input" oninput="debouncedFilter()" placeholder="Escribe el nombre del campeón..." class="w-full bg-slate-900 border border-slate-700 rounded p-3 pl-10 text-white placeholder-gray-500 text-sm focus:border-yellow-500 focus:outline-none">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-500"></i>
                 </div>
                 
@@ -1238,25 +1243,33 @@
                 const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champ.image.full}`;
                 
                 item.innerHTML = `
-                    <img src="${imgUrl}" alt="${champ.name}" class="w-12 h-12 rounded object-cover border border-slate-700 group-hover:border-yellow-500" onerror="this.src='https://via.placeholder.com/100?text=${champ.name}'">
+                    <img src="${imgUrl}" alt="${champ.name}" loading="lazy" class="w-12 h-12 rounded object-cover border border-slate-700 group-hover:border-yellow-500" onerror="this.src='https://via.placeholder.com/100?text=${champ.name}'">
                     <span class="text-[10px] text-gray-400 group-hover:text-yellow-400 mt-1 block truncate w-full text-center font-semibold">${champ.name}</span>
                 `;
                 listContainer.appendChild(item);
             });
         }
 
-        // Abrir Modal de Búsqueda
+        
         function openSearchModal(role, index, type = 'hex') {
-            activeSelection.role = role;
-            activeSelection.index = index;
-            activeSelection.type = type;
-            document.getElementById('champion-search-input').value = '';
-            filterChampions(); // Resetea filtros
-            
-            const modal = document.getElementById('champion-search-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+    activeSelection.role = role;
+    activeSelection.index = index;
+    activeSelection.type = type;
+    document.getElementById('champion-search-input').value = '';
+    filterChampions(); // Resetea filtros
+    
+    const modal = document.getElementById('champion-search-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => { modal.style.opacity = '1'; }, 10);
+
+
+    const championImages = document.querySelectorAll('#champions-list img');
+    championImages.forEach(img => {
+        if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
         }
+    });
+}
 
         // Cerrar Modal
         function closeSearchModal() {
@@ -1267,18 +1280,18 @@
 
         // Filtrar campeones al escribir en el buscador
         function filterChampions() {
-            const query = document.getElementById('champion-search-input').value.toLowerCase();
-            const items = document.querySelectorAll('#champions-list > div');
-            
-            items.forEach(item => {
-                const name = item.getAttribute('data-name');
-                if (name.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+    const query = document.getElementById('champion-search-input').value.toLowerCase();
+    const items = document.querySelectorAll('#champions-list > div');
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name').toLowerCase();
+        if (name.includes(query)) {
+            item.classList.remove('champ-hidden'); // Mucho más rápido que modificar .style directamente
+        } else {
+            item.classList.add('champ-hidden');
         }
+    });
+}
 
         // Seleccionar Campeón e Insertar en la Pool o en Picks/Counters
         function selectChampion(championId) {
@@ -1642,6 +1655,13 @@
             };
             reader.readAsText(file);
         }
+        let searchTimeout;
+
+function debouncedFilter() {
+    clearTimeout(searchTimeout);
+    // Espera 150ms antes de ejecutar el filtro en el DOM
+    searchTimeout = setTimeout(filterChampions, 150);
+}
     </script>
 </body>
 </html>
