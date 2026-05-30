@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoL Champion Pool Builder</title>
+    <title>LoL Champion Pool Builder - Diego González luis</title>
     <!-- Google Fonts: Beaufont style & Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -250,6 +250,20 @@
         #champions-list > div {
     content-visibility: auto;
     contain-intrinsic-size: 80px 100px; /* Dale una estimación del tamaño de cada tarjeta de campeón (ancho x alto) */
+}
+#champions-list > div,
+#champions-list > div:hover,
+#champions-list > div img,
+#champions-list > div:hover img {
+    transform: none !important;
+    transition: none !important;
+    filter: none !important;
+}
+
+/* Pon un hover súper ligero: solo cambia un poco el fondo al pasar el ratón */
+#champions-list > div:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    cursor: pointer;
 }
 .champ-hidden {
     display: none !important;
